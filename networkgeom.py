@@ -88,8 +88,8 @@ netParams.cellParams['PYR_Izhi_inhib'] = cellRule
 # Synaptic mechanism parameters
 netParams.synMechParams['AMPA'] = {'mod': 'ExpSyn', 'tau': 0.1, 'e': 0}
 ## Synaptic mechanism parameters
-#netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e': 0}  # NMDA synaptic mechanism
-#netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e': -75}  # GABA synaptic mechanism
+netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e': 0}  # NMDA synaptic mechanism
+netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e': -75}  # GABA synaptic mechanism
 
 # Stimulation parameters (stimTargetParams chooses which neurons to stimulate)
 netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 10, 'noise': 0.5}
@@ -120,7 +120,16 @@ netParams.connParams['E->all'] = {
     'delay': '0.2+normal(13.0,1.4)',     # delay min=0.2, mean=13.0, var = 1.4
     'threshold': 10,                     # threshold
     'convergence': 'uniform(0,5)',       # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
-    'synMech': 'AMPA'}
+    'synMech': 'exc'}
+netParams.connParams['I->all'] = {
+  'preConds': {'cellType': 'I'},
+  'postConds': {'cellType': ['E','I']},       #  I -> E
+  'weight': 'max_weight_const*exp(-weight_dist_factor*dist_3D/maxDist)',  # weight of each connection
+  'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/maxDist)', # probability of connection
+  'delay': '0.2+normal(13.0,1.4)',                    # transmission delay (ms)
+  'threshold': 10,                     # threshold
+  'convergence': 'uniform(0,5)',       # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
+  'synMech': 'inh'}                                  # synaptic mechanism
 
 ###############################################################################
 # SIMULATION PARAMETERS
