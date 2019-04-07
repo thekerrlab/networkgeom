@@ -6,7 +6,7 @@ def batchTauWeight():
 	params = specs.ODict()
 
 	# fill in with parameters to explore and range of values (key has to coincide with a variable in simConfig)
-	params['weight_dist_factor'] = [0.5, 1, 5, 10]
+	params['weight'] = [0.001, 0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3]
 
 	# create Batch object with paramaters to modify, and specifying files to use
 	b = Batch(params=params, cfgFile='config.py', netParamsFile='network.py')

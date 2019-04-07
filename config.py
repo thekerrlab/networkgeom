@@ -4,7 +4,13 @@ from netpyne import specs
 cfg = specs.SimConfig()
 
 # Default config variables (if batch not used)
-cfg.weight_dist_factor = 5.0
+cfg.weight = 0.1                    # Weight of connection
+cfg.horizontal_lengths = 200        # X and Z square
+cfg.vertical_length = 200           # Y, the vertical dimension
+cfg.max_conn_probability = 0.1      # Maximum probability of a connection (when dist = 0)
+cfg.exp_dist_factor_prob = 2.0      # Amplifies the distance dependence
+cfg.prob_length_const = 150.0       # length at which probability = exp_dist_factor_prob*max_conn_probability/e
+cfg.propagation_velocity = 100.0    # propagation velocity (um/ms)
 
 # Simulation parameters
 cfg.duration = 2*1e3              # Duration of the simulation, in ms
@@ -38,7 +44,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
-cfg.analysis['plotTraces'] = {'include': [0,24,49]} # plot recorded traces for this list of cells
+cfg.analysis['plotTraces'] = {'include': [0,49,99]} # plot recorded traces for this list of cells
 cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'PYR_Izhi_excit', 'PYR_Izhi_inhib'], 'smooth': 10}
 cfg.analysis['plot2Dnet'] = True
 cfg.analysis['plotConn'] = True

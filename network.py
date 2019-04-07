@@ -10,19 +10,22 @@ netParams = specs.NetParams()
 
 ## Constants/Variables
 # Size of network and length constant for connection probability
-xRange = [0,500]
-yRange = [0,500]
-netParams.maxDist = math.sqrt(pow(xRange[1]-xRange[0],2)+pow(yRange[1]-yRange[0],2))
+netParams.sizeX = cfg.horizontal_lengths # x-dimension (horizontal length) size in um
+netParams.sizeY = cfg.vertical_length # y-dimension (vertical height or cortical depth) size in um
+netParams.sizeZ = cfg.horizontal_lengths # z-dimension (horizontal length) size in um
+xRange = [0,netParams.sizeX]
+yRange = [0,netParams.sizeY]
+zRange = [0,netParams.sizeZ]
+#netParams.maxDist = math.sqrt(pow(xRange[1]-xRange[0],2)+pow(yRange[1]-yRange[0],2) +pow(zRange[1]-zRange[0],2))
+netParams.propVelocity = cfg.propagation_velocity	# propagation velocity (um/ms)
+netParams.probLengthConst = cfg.prob_length_const 	# length constant for conn probability (um)
 # Constants for Weight and probability
-#netParams.weight_dist_factor = 5.0
-netParams.weight_dist_factor = cfg.weight_dist_factor
-netParams.max_weight_const = 1
-netParams.max_prob_const = 0.2
-netParams.prob_dist_factor = 5.0
+netParams.max_prob_const = cfg.max_conn_probability
+netParams.prob_dist_factor = cfg.exp_dist_factor_prob
 
 ## Population parameters
-netParams.popParams['PYR_Izhi_excit'] = {'cellModel': 'Izhi', 'cellType': 'E', 'xRange': xRange, 'yRange': yRange, 'numCells': 50}
-netParams.popParams['PYR_Izhi_inhib'] = {'cellModel': 'Izhi', 'cellType': 'I', 'xRange': xRange, 'yRange': yRange, 'numCells': 50}
+netParams.popParams['PYR_Izhi_excit'] = {'cellModel': 'Izhi', 'cellType': 'E', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 50}
+netParams.popParams['PYR_Izhi_inhib'] = {'cellModel': 'Izhi', 'cellType': 'I', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 50}
 
 ## Cell property rules
 # Excitory cells (Izhi)
@@ -56,9 +59,9 @@ netParams.stimTargetParams['bkg->all'] = {'source': 'bkg', 'conds': {'cellType':
 netParams.connParams['E->all'] = {
     'preConds': {'cellType': 'E'},
     'postConds': {'cellType': ['E', 'I']},
-    'weight': 'max_weight_const*exp(-weight_dist_factor*dist_3D/maxDist)',  # weight of each connection
-    'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/maxDist)', # probability of connection
-    'delay': '0.2+normal(13.0,1.4)',                                        # delay min=0.2, mean=13.0, var = 1.4
+	'weight': cfg.weight,
+    'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
+    'delay': 'dist_3D/propVelocity',                                        # delay min=0.2, mean=13.0, var = 1.4
     'threshold': 10,                                                        # threshold
     'convergence': 'uniform(0,5)',                                          # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
     'synMech': 'exc'}
@@ -66,9 +69,9 @@ netParams.connParams['E->all'] = {
 netParams.connParams['I->all'] = {
   'preConds': {'cellType': 'I'},
   'postConds': {'cellType': ['E','I']},
-  'weight': 'max_weight_const*exp(-weight_dist_factor*dist_3D/maxDist)',    # weight of each connection
-  'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/maxDist)',   # probability of connection
-  'delay': '0.2+normal(13.0,1.4)',                                          # transmission delay (ms)
+  'weight': cfg.weight, 													# weight of each connection
+  'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)',   # probability of connection
+  'delay': 'dist_3D/propVelocity',                                          # transmission delay (ms)
   'threshold': 10,                                                          # threshold
   'convergence': 'uniform(0,5)',                                            # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
   'synMech': 'inh'}                                                         # synaptic mechanism

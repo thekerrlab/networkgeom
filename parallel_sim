@@ -1,0 +1,7 @@
+#!/bin/bash
+# Run as follows:
+#   ./parallel_sim <num_cores> <file_name>.py
+# Examples:
+#   ./parallel_sim 4 run.py
+#   ./parallel_sim 4 batch.py   # works on batch files too
+mpiexec -n $1 nrniv -python -mpi $2  # Run the model

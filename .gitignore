@@ -2,3 +2,4 @@ x86_64/
 *.pyc
 .DS_Store
 testmpi.py
+*.log
