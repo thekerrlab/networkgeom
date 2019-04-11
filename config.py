@@ -27,8 +27,10 @@ cfg.recordCells = []  # list of cells to record from
 cfg.recordTraces = {  'V':{'sec':'soma','loc':0.5,'var':'v'},
                             'u':{'sec':'soma', 'pointp':'Izhi', 'var':'u'},
                             'I':{'sec':'soma', 'pointp':'Izhi', 'var':'i'},
-                            'AMPA_g': {'sec':'soma', 'loc':0.5, 'synMech':'AMPA', 'var':'g'},
-                            'AMPA_i': {'sec':'soma', 'loc':0.5, 'synMech':'AMPA', 'var':'i'}}
+                            'bkg': {'sec':'soma', 'loc':0.5, 'synMech':'bkg', 'var':'i'},
+                            'exc': {'sec':'soma', 'loc':0.5, 'synMech':'exc', 'var':'i'},
+                            'inh': {'sec':'soma', 'loc':0.5, 'synMech':'inh', 'var':'i'},
+                            }
 cfg.recordStim = True  # record spikes of cell stims
 cfg.recordStep = 0.025 # Step size in ms to save data (eg. V traces, LFP, etc)
 
@@ -44,7 +46,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
-cfg.analysis['plotTraces'] = {'include': [0,49,50,99]} # plot recorded traces for this list of cells
+cfg.analysis['plotTraces'] = {'include': [0,48,50,99]} # plot recorded traces for this list of cells
 cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'PYR_Izhi_excit', 'PYR_Izhi_inhib'], 'smooth': 10}
 cfg.analysis['plot2Dnet'] = True
 cfg.analysis['plotConn'] = True

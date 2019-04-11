@@ -45,21 +45,22 @@ cellRule['secs']['soma']['pointps']['Izhi'] = {'mod':'Izhi2007b',
 netParams.cellParams['PYR_Izhi_inhib'] = cellRule												# add dict to list of cell params
 
 ## Synaptic mechanism parameters
-netParams.synMechParams['AMPA'] = {'mod': 'ExpSyn', 'tau': 0.1, 'e': 0}
-netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e': 0}  # NMDA synaptic mechanism
+# netParams.synMechParams['AMPA'] = {'mod': 'ExpSyn', 'tau': 0.1, 'e': 0}
+netParams.synMechParams['bkg'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e': 0}  # NMDA/AMPA synaptic mechanism
+netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e': 0}  # NMDA/AMPA synaptic mechanism
 netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e': -75}  # GABA synaptic mechanism
 
 # Stimulation parameters
-netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 10, 'noise': 0.5}
+netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 150, 'noise': 0.5}
 netParams.stimTargetParams['bkg->all'] = {'source': 'bkg', 'conds': {'cellType': ['E','I']},
-                                        'weight': 1, 'delay': 'max(1, normal(5,2))', 'synMech': 'AMPA'}
+                                        'weight': 0.001, 'delay': 'max(1, normal(5,2))', 'synMech': 'bkg'}
 
 ## Cell connectivity rules
 # Excitory to all
 netParams.connParams['E->all'] = {
     'preConds': {'cellType': 'E'},
     'postConds': {'cellType': ['E', 'I']},
-	'weight': cfg.weight,
+	'weight': 0.1*cfg.weight,
     'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
     'delay': 'dist_3D/propVelocity',                                        # delay min=0.2, mean=13.0, var = 1.4
     'threshold': 10,                                                        # threshold
@@ -69,7 +70,7 @@ netParams.connParams['E->all'] = {
 netParams.connParams['I->all'] = {
   'preConds': {'cellType': 'I'},
   'postConds': {'cellType': ['E','I']},
-  'weight': cfg.weight, 													# weight of each connection
+  'weight': 1*cfg.weight, 													# weight of each connection
   'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)',   # probability of connection
   'delay': 'dist_3D/propVelocity',                                          # transmission delay (ms)
   'threshold': 10,                                                          # threshold
