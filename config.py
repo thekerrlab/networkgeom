@@ -46,7 +46,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
-cfg.analysis['plotTraces'] = {'include': [0,48,50,99]} # plot recorded traces for this list of cells
-cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'PYR_Izhi_excit', 'PYR_Izhi_inhib'], 'smooth': 10}
-cfg.analysis['plot2Dnet'] = True
-cfg.analysis['plotConn'] = True
+#cfg.analysis['plotTraces'] = {'include': [0,48,50,99]} # plot recorded traces for this list of cells
+#cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'PYR_Izhi_excit', 'PYR_Izhi_inhib'], 'smooth': 10}
+cfg.analysis['plot2Dnet'] = False
+cfg.analysis['plotConn'] = False

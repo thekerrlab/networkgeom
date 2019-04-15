@@ -24,8 +24,8 @@ netParams.max_prob_const = cfg.max_conn_probability
 netParams.prob_dist_factor = cfg.exp_dist_factor_prob
 
 ## Population parameters
-netParams.popParams['PYR_Izhi_excit'] = {'cellModel': 'Izhi', 'cellType': 'E', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 50}
-netParams.popParams['PYR_Izhi_inhib'] = {'cellModel': 'Izhi', 'cellType': 'I', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 50}
+netParams.popParams['PYR_Izhi_excit'] = {'cellModel': 'Izhi', 'cellType': 'E', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 500}
+netParams.popParams['PYR_Izhi_inhib'] = {'cellModel': 'Izhi', 'cellType': 'I', 'xRange': xRange, 'yRange': yRange, 'zRange': zRange, 'numCells': 500}
 
 ## Cell property rules
 # Excitory cells (Izhi)
@@ -51,7 +51,7 @@ netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e
 netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e': -75}  # GABA synaptic mechanism
 
 # Stimulation parameters
-netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 150, 'noise': 0.5}
+netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 120, 'noise': 0.5}
 netParams.stimTargetParams['bkg->all'] = {'source': 'bkg', 'conds': {'cellType': ['E','I']},
                                         'weight': 0.001, 'delay': 'max(1, normal(5,2))', 'synMech': 'bkg'}
 
