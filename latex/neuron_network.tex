@@ -1,0 +1,129 @@
+\documentclass[11pt, twocolumn]{article}
+\usepackage[left=2.54cm, right=2.54cm, top=1.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[skip=0pt, font=scriptsize,labelfont=scriptsize]{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{siunitx}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage{color} % text color for not taking
+\usepackage{pdflscape}
+
+\graphicspath{{figures/}}
+
+\usepackage[
+backend = biber,
+style=ieee,
+]{biblatex}
+\addbibresource{neuronNetworkReferences.bib}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+
+\usepackage{acro} % acronym package
+\DeclareAcronym{STDP}{
+	short = STDP,
+	long  = Spike Time Dependent Plasticity,
+}
+
+\begin{document}
+	\begin{titlepage} 
+		\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for horizontal lines, change thickness here
+		
+		\center % Centre everything on the page
+		
+		%------------------------------------------------
+		%	Headings
+		%------------------------------------------------
+		
+		\textsc{\LARGE University of Sydney}\\[1.5cm] % Main heading such as the name of your university/college
+		
+		%\textsc{\Large Computation Neuronal Networks}\\[0.5cm] % Major heading such as course name
+		
+		%\textsc{\large PHYS2921}\\[0.5cm] % Minor heading such as course title
+		
+		%------------------------------------------------
+		%	Title
+		%------------------------------------------------
+		
+		\HRule\\[0.4cm]
+		
+		{\huge\bfseries Exploration of Computation Neuronal Network for Solving a Foraging Task}\\[0.4cm] % Title of your document
+		
+		\HRule\\[1.5cm]
+		
+		%------------------------------------------------
+		%	Author(s)
+		%------------------------------------------------
+		
+		%\begin{minipage}{0.4\textwidth}
+		%	\begin{flushleft}
+		%		\large
+		%		\textit{Author}\\
+		%		William .A. \textsc{Talbot} % Your name
+		%	\end{flushleft}
+		%\end{minipage}
+		%~
+		%\begin{minipage}{0.4\textwidth}
+		%	\begin{flushright}
+		%		\large
+		%		\textit{Date}\\
+		%		\textsc{} % Supervisor's name
+		%	\end{flushright}
+		%\end{minipage}
+		
+		% If you don't want a supervisor, uncomment the two lines below and comment the code above
+		{\large\textit{Author}}\\
+		William A. \textsc{Talbot}\\ % Your name
+		{\large\textit{Supervisor}}\\
+		Dr. Cliff \textsc{Kerr} % Your supervisor
+		
+		%------------------------------------------------
+		%	Date
+		%------------------------------------------------
+		
+		\vfill\vfill\vfill % Position the date 3/4 down the remaining page
+		
+		{\large May, 2019} % Date, change the \today to a set date if you want to be precise
+		
+		%------------------------------------------------
+		%	Logo
+		%------------------------------------------------
+		
+		%\vfill\vfill
+		%\includegraphics[width=0.2\textwidth]{placeholder.jpg}\\[1cm] % Include a department/university logo - this will require the graphicx package
+		
+		%----------------------------------------------------------------------------------------
+		
+		\vfill % Push the date up 1/4 of the remaining page
+		
+	\end{titlepage}
+
+\newpage
+\tableofcontents
+\printacronyms[name=Acronyms]
+\newpage
+
+
+\twocolumn
+\section*{Abstract}
+
+\section*{Introduction}
+The development of modern artificial intelligence has its roots in the field of neuroscience since the inception of neural modelling in the 1943 with neuroscientist Warren McCulloch's and mathematician Walter Pitts' seminal paper on the ``logical calculus'' of ``nervous activity'' \cite{mcculloch1943logical}. Theories from neuroscience laid the foundations for successes in the following decades such as the first neural network with a real-world application, MADELEINE, in 1959. The unsuccessful theory of ``Perceptron'' networks, ultimately proven limited in Minsky and Papert's 1969 book \cite{minsky1969perceptron}, was developed around the time and coupled with a cultural fear of robotics and AI stemming from science fiction, halted funding and progress. The mid 1980s saw a resurgence of the computational neuroscience field. Lacking digital means, several neural networks were simulated in analogue electrical circuits such as the parallel collective analog circuits of Hopfield and Tank's tackling of the travelling salesman problem \cite{hopfield1985neural} that improved on the previous two-state neuron approach. Their electrical circuits were biologically inspired, with standard electrical components such as amplifiers, capacitor and resistors used to model the neuronal dynamics. The problem, which aims to find a shortest-path circuit between points is well studied and is known to have exponential time complexity and be np-complete, however their circuit was able to produce excellent solutions in short time spans, rivalled only by the Lin-Kernighan Monte Carlo approach.
+
+The core application of neural networks was realised at the time. It was noted in Hopfield and Tank's that ``A person ... quickly finds a very good path'' and that therefore, conceptually at least, it should be ``an easy problem''. The question raised is obvious - why is it that the human brain is able to quickly solve computationally difficult problems with relative ease, and is this replicable? The advances in robotics, and perceptual, pattern-intensive and data-dependent problems predicted \cite{hopfield1985neural} are evident and ongoing today. Noticeably in the field of neural networks after the 1980s, the balance between the biological principles of neuroscience and the mathematical constructs underlying the networks has shifted in favour of the latter. Today many such mathematical network models exist, such as feed-forward, recurrent, bi-directional recurrent, biological, spiking, convolutional, max-pooling convolutional, deep belief, self-delimiting and time delay neural networks \cite{schmidhuber2015deep}. Object classification is an example of a widely developed subset of neural net applications, however even today the best performances of these networks are sub-human and sometimes significantly worse. One recent convolutional neural network developed by Liang and Hu \cite{liang2015recurrent} trained on 50000 images of the 10-class CIFAR-10 database achieved accuracies of less than 93\% while another, trained on 60000 images of the 100-class CIFAR-100 database has a best accuracy of only 68.25\%. Not only is the accuracy of current artificial neural networks inferior to the human brain but also the size of the training set required to teach a neural network is disproportionately large comparatively. The potential for networks that require much smaller training sets is another motivator for investigating biologically realistic neural networks.
+
+While research in the computational neuroscience certainly exists, it is much smaller than the artificial intelligence field and research into applied biological or spiking neural networks is even smaller. This is potentially partly a result of the lower observed performance of spiking neural networks for practical applications in comparison to the best traditional neural networks \cite{schmidhuber2015deep}. The combination of advances in the understanding of neuronal dynamics, powerful computational tools and demonstrations of computational viability \cite{zenke2014limits} has inspired some researchers around the world to return to modelling the human brain and investigate biological neural networks \cite{ashby2011tutorial}\cite{ashby2005frost}\cite{frank2005dynamic}\cite{hartley2006understanding}\cite{leveille2010running}. There are currently several well-known large-scale projects currently being developed. The most famous and longest-lasting is the Human Brain Project \cite{markram2015reconstruction} with its mission to build a novel and unified infrastructure for computational neuroscience. Another is ``BioSpawn'' \cite{eliasmith2016biospaun}, a dynamic brain model consisting of 2.5 million neurons and 8 billion connections comprised of visual input, motor output and memory components. It is based on the NEURON simulation environment, a computational neuroscience tool that has been developed at Yale University for over 35 years. It is worth noting that the field of computational neuroscience is not limited to just the digital domain, but includes research done on real biological neuron networks, such as Frega et al.'s three-dimensional hippocampal network with embedded micro-transducer arrays which achieved a density of 80000 cells per cubic millimetre and an average of 600 synaptic connections per neuron \cite{frega2014network}.
+
+The complex systems lab at the University of Sydney has also made significant developments in the field's digital side, with sensorimotor cortex models able to demonstrate reinforcement learning through spike time dependent plasticity (\acs{STDP}) in a virtual arm \cite{neymotin2013reinforcement}\cite{dura2017evolutionary}. Sanda et al.'s team at the University of California have similarly demonstrated effective \acs{STDP} reinforcement learning on a toy game where a sprite attempts to forage for food on a two-dimensional grid as efficiently as possible \cite{sanda2017multi}, similar in computational difficulty to the travelling salesman problem. This report will demonstrate an implementation of this network and investigate the effects of modifications to the network. This implementation will be done through the use of NetPyNe, a tool for creating and running large-scale network simulations in NEURON \cite{dura2018netpyne}.
+
+
+\newpage
+\printbibliography{}
+
+\end{document}

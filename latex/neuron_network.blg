@@ -1,0 +1,18 @@
+[0] Config.pm:354> INFO - This is Biber 2.7
+[0] Config.pm:357> INFO - Logfile is 'neuron_network.blg'
+[39] biber-darwin:303> INFO - === Wed Apr 24, 2019, 14:13:11
+[61] Biber.pm:359> INFO - Reading 'neuron_network.bcf'
+[156] Biber.pm:835> INFO - Found 18 citekeys in bib section 0
+[179] Biber.pm:3670> INFO - Processing section 0
+[194] Biber.pm:3840> INFO - Looking for bibtex format file 'neuronNetworkReferences.bib' for section 0
+[196] bibtex.pm:1435> INFO - Decoding LaTeX character macros into UTF-8
+[202] bibtex.pm:1292> INFO - Found BibTeX data source 'neuronNetworkReferences.bib'
+[259] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[259] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[259] Biber.pm:3499> INFO - Sorting list 'none/global/' of type 'entry' with scheme 'none' and locale 'en-US'
+[259] Biber.pm:3505> INFO - No sort tailoring available for locale 'en-US'
+[273] bbl.pm:608> INFO - Writing 'neuron_network.bbl' with encoding 'ascii'
+[276] Utils.pm:164> WARN - The entry 'schmidhuber2015deep' has characters which cannot be encoded in 'ascii'. Recoding problematic characters into macros.
+[279] Utils.pm:164> WARN - The entry 'leveille2010running' has characters which cannot be encoded in 'ascii'. Recoding problematic characters into macros.
+[281] bbl.pm:712> INFO - Output to neuron_network.bbl
+[282] Biber.pm:109> INFO - WARNINGS: 2
