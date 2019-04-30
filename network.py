@@ -88,9 +88,12 @@ netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e
 
 
 # Stimulation parameters
-netParams.stimSourceParams['Input'] = {'type': 'NetStim', 'interval': cfg.backgroundStimDelayPeriod, 'number': cfg.backgroundStimNumber, 'start': 0, 'noise': 0}
+#netParams.stimSourceParams['Input'] = {'type': 'VecStim', 'interval': cfg.backgroundStimDelayPeriod, 'number': cfg.backgroundStimNumber, 'start': 0.0, 'noise': 0.0}
+netParams.stimSourceParams['Input'] = {'type': 'NetStim', 'weight': 0, 'interval': cfg.backgroundStimDelayPeriod, 'number': cfg.backgroundStimNumber, 'start': 0, 'noise': 0}
 #netParams.stimSourceParams['Input'] = {'type': 'IClamp', 'del': 0, 'dur': 5, 'amp': 1}
-netParams.stimTargetParams['Input->input'] = {'source': 'Input', 'sec':'soma', 'loc': 0.5, 'conds': {'cellType': ['In'], 'cellList': sim.forageCellList}, 'synMech': 'exc'}
+
+netParams.stimTargetParams['Input->input'] = {'source': 'Input', 'sec': 'soma', 'loc': 0.5, 'conds': {'cellType': 'In'}, 'synMech': 'exc'}
+#netParams.stimTargetParams['Input->input'] = {'source': 'Input', 'sec':'soma', 'loc': 0.5, 'conds': {'cellType': ['In'], 'cellList': forageCellList}, 'synMech': 'exc'}
 #netParams.stimTargetParams['bkg->input'] = {'source': 'bkg', 'conds': {'cellType': ['In'], 'cellList': forageCellList}, 'weight': cfg.backgroundStimWeight, 'delay': 0, 'synMech': 'exc'}
 #netParams.stimTargetParams['bkg->input'] = {'source': 'bkg', 'conds': {'cellType': ['In'], 'cellList': forageCellList}, 'weight': cfg.backgroundStimWeight, 'delay': 0, 'synMech': 'exc'}
 

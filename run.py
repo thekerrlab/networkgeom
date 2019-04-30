@@ -9,8 +9,8 @@ simConfig is a dict containing a set of simulation configurations using a standa
 # Create forage object
 forage = Forage(10,10,0.1)
 # Get the occupied cells from the forage instance (already in scope)
-sim.forageCellList = forage.getOccupiedGridList()
-print("Initial cells to stimulate:" + str(sim.forageCellList))
+forageCellList = forage.getOccupiedGridList()
+print("Initial cells to stimulate:" + str(forageCellList))
 
 # read cfg and netParams from command line arguments if available; otherwise use default
 simConfig, netParams = sim.readCmdLineArgs(simConfigDefault='config.py', netParamsDefault='network.py')
@@ -18,12 +18,6 @@ simConfig, netParams = sim.readCmdLineArgs(simConfigDefault='config.py', netPara
 # Create network and run simulation
 #sim.createSimulateAnalyze(netParams=netParams, simConfig=simConfig)
 sim.create(simConfig = simConfig, netParams = netParams)
-#sim.initialize(simConfig = simConfig, netParams = netParams)
-#sim.net.createPops()                    # instantiate network populations
-#sim.net.createCells()                   # instantiate network cells based on defined populations
-#sim.net.connectCells()                  # create connections between cells based on params
-#sim.net.addStims()
-#sim.setupRecording()                    # setup variables to record for each cell (spikes, V traces, etc)
 
 # Initialisation
 sim.updateInterval = cfg.backgroundStimDelayPeriod
@@ -39,11 +33,8 @@ indexOfFirstUnprocessedSpike = 0
 # t = time in simulation
 def update(t):
     global indexOfFirstUnprocessedSpike
+    global forageCellList
     # Extract output cell activity to get direction
-    #cellData = sim.gatherData()
-    #spikingCells = cellData.spkid
-    #for v in sorted(vars(sim)):
-        #print(v)
     spikingCells = sim.simData['spkid']
     spikingOutputCells = [spikingCell for spikingCell in spikingCells if spikingCell >= indexOfFirstOutputCell]
     # Only move player if there are unprocessed spikes, otherwise leave critic = 0
@@ -60,9 +51,7 @@ def update(t):
         # Move the sprite and determine critic value
         direction = mostActiveOutputCell - indexOfFirstOutputCell + 1 # range of 1-9
         critic = forage.movePlayer(direction)
-        # Print
         print("Direction code: " + str(direction))
-        #input("<ENTER> to continue...")
 
     # Reward or punish depending on critic
     for cell in sim.net.cells:
@@ -79,10 +68,60 @@ def update(t):
                 sim.allWeights[-1].append(float(conn['hObj'].weight[0])) # save weight only for STDP conns
 
     # Send a new burst for new cells
-    sim.forageCellList = forage.getOccupiedGridList()
-    sim.net.modifyStims({'conds': {'label': 'Input->input'}, 'conditions': {'cellType': ['In'], 'cellList': sim.forageCellList}})
-    print("Cells to stimulate:" + str(sim.forageCellList))
-    #input("<ENTER> to continue...")
+    '''
+    inputStims = [sim.net.cells[forageCellList[i]].stims[0] for i in range(len(forageCellList))]
+    #print(inputStims)
+    for i in forageCellList:
+        #print(sim.net.cells[i].stims)
+        sim.net.cells[i].stims.clear()
+        #print(sim.net.cells[i].stims)
+    forageCellList = forage.getOccupiedGridList()
+    idx = 0
+    for i in forageCellList:
+        #print(sim.net.cells[i].stims)
+        sim.net.cells[i].stims.append(inputStims[idx])
+        idx += 1
+        #print(sim.net.cells[i].stims)
+    input()
+    '''
+    '''
+    #print(sim.simData.stims)
+    #print(forageCellList)
+    #input()
+    inputStim = sim.simData.stims[list(sim.simData.stims)[forageCellList[0]]]
+    # Clear current stims
+    for cellNum in forageCellList:
+        sim.simData.stims[list(sim.simData.stims)[cellNum]] = {}
+    # Get new list
+    forageCellList = forage.getOccupiedGridList()
+    # Add new stims
+    for cellNum in forageCellList:
+        sim.simData.stims[list(sim.simData.stims)[cellNum]][list(inputStim.keys())[0]] = inputStim['Input']
+    #print(sim.simData.stims)
+    #print(forageCellList)
+    #input()
+    '''
+
+    forageCellList = forage.getOccupiedGridList()
+    #sim.net.modifyStims({'conds': {'label': 'Input->input'}, 'cellConds': {'cellType': 'In'}, 'weight': cfg.backgroundStimWeight})
+    for i in range(cfg.input_pop_size):
+        for conn in sim.net.cells[i].conns:
+            conn['source'] = 'Input'
+            sim.net.cells[i].tags['turnOnFlag'] = 0
+        if i in forageCellList:
+            sim.net.cells[i].tags['turnOnFlag'] = 1
+    sim.net.modifyStims({'conds': {'source': 'Input'}, 'cellConds': {'cellType': 'In', 'turnOnFlag': 1}, 'weight': cfg.backgroundStimWeight})
+    sim.net.modifyStims({'conds': {'source': 'Input'}, 'cellConds': {'cellType': 'In', 'turnOnFlag': 0}, 'weight': 0})
+
+    '''
+    for cellNum in range(cfg.input_pop_size):
+        if cellNum in forageCellList:
+            sim.net.modifyStims({'conds': {'label': 'Input->input'}, 'cellConds': {'cellType': ['In']]}, 'weight': cfg.backgroundStimWeight})
+        else:
+            sim.net.modifyStims({'conds': {'label': 'Input->input'}, 'cellConds': {'gid': cellNum}, 'weight': 0})
+    '''
+
+    print("Cells to stimulate:" + str(forageCellList))
 
 # Run simulation
 sim.runSimWithIntervalFunc(sim.updateInterval, update)   # run parallel Neuron simulation
