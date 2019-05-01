@@ -82,7 +82,7 @@ netParams.synMechParams['exc'] = {'mod': 'Exp2Syn', 'tau1': 0.8, 'tau2': 5.3, 'e
 netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.6, 'tau2': 8.5, 'e': -75}  # GABA synaptic mechanism
 # netParams.synMechParams['AMPA'] = {'mod': 'ExpSyn', 'tau': 0.1, 'e': 0}
 # mechanism parameters taken from netpyne's arm example:
-#netParams.synMechParams['AMPA'] = {'mod': 'Exp2Syn', 'tau1': 0.05, 'tau2': 5.3, 'e': 0} # AMPA
+netParams.synMechParams['AMPA'] = {'mod': 'Exp2Syn', 'tau1': 0.05, 'tau2': 5.3, 'e': 0} # AMPA
 #netParams.synMechParams['NMDA'] = {'mod': 'Exp2Syn', 'tau1': 0.15, 'tau2': 1.50, 'e': 0} # NMDA
 #netParams.synMechParams['GABA'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80} # GABAA
 
@@ -99,34 +99,62 @@ netParams.stimTargetParams['Input->input'] = {'source': 'Input', 'sec': 'soma', 
 
 ## Cell connectivity rules
 # Input to middle
-netParams.connParams['In->EI'] = {
+'''netParams.connParams['In->EI'] = {
     'preConds': {'cellType': 'In'},
     'postConds': {'cellType': ['E', 'I']},
 	'weight': cfg.input_weight,
     'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
-    'delay': 'dist_3D/propVelocity',                                        # delay min=0.2, mean=13.0, var = 1.4
-    'threshold': 10,                                                        # threshold
-    'convergence': 'uniform(0,5)',                                          # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
-    'synMech': 'exc'}
+    'delay': 'dist_3D/propVelocity',                                        # delay
+    #'threshold': 10,                                                        # threshold
+    #'convergence': 'uniform(0,5)',                                          # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
+    'synMech': 'exc'}'''
+netParams.addConnParams(None,
+    {'preConds': {'cellType': 'In'},
+	'postConds': {'cellType': ['E', 'I']},  # ES -> EM (plastic)
+	'sec': 'soma',
+    'weight': cfg.input_weight,
+    'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
+    'delay': 'dist_3D/propVelocity',
+    'synMech': 'exc'})
 # Excitory to middle and output
-netParams.connParams['E->EIOut'] = {
+'''netParams.connParams['E->EIOut'] = {
     'preConds': {'cellType': 'E'},
     'postConds': {'cellType': ['E', 'I', 'Out']},
 	'weight': cfg.exc_weight,
     'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
     'delay': 'dist_3D/propVelocity',                                        # delay min=0.2, mean=13.0, var = 1.4
-    'threshold': 10,                                                        # threshold
+	'sec': 'soma',
+    #'threshold': 10,                                                        # threshold
     'convergence': 'uniform(0,5)',                                          # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
-    'synMech': 'exc'}#,
-	#'plast': {'mech': 'STDP', 'params': STDPparams}}
+    'synMech': 'exc',#}
+	'plast': {'mech': 'STDP', 'params': STDPparams}}'''
+netParams.addConnParams(None,
+    {'preConds': {'cellType': 'E'},
+	'postConds': {'cellType': ['E', 'I', 'Out']},  # ES -> EM (plastic)
+	'sec': 'soma',
+    'weight': cfg.exc_weight,
+    'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
+    'delay': 'dist_3D/propVelocity',
+    'synMech': 'exc',
+    'plast': {'mech': 'STDP', 'params': STDPparams}})
 # Inhibitory to middle and output
-netParams.connParams['I->EIOut'] = {
+'''netParams.connParams['I->EIOut'] = {
   'preConds': {'cellType': 'I'},
   'postConds': {'cellType': ['E', 'I', 'Out']},
   'weight': cfg.inh_weight, 													# weight of each connection
   'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)',   # probability of connection
   'delay': 'dist_3D/propVelocity',                                          # transmission delay (ms)
-  'threshold': 10,                                                          # threshold
+  'sec': 'soma',
+  #'threshold': 10,                                                          # threshold
   'convergence': 'uniform(0,5)',                                            # convergence (num presyn targeting postsyn) is uniformly distributed between 1 and 10
-  'synMech': 'inh'}#,
-  #'plast': {'mech': 'STDP', 'params': STDPparams}}                                                         # synaptic mechanism
+  'synMech': 'inh'}'''#,
+	#'plast': {'mech': 'STDP', 'params': STDPparams}}                                                         # synaptic mechanism
+netParams.addConnParams(None,
+    {'preConds': {'cellType': 'I'},
+	'postConds': {'cellType': ['E', 'I', 'Out']},  # ES -> EM (plastic)
+	'sec': 'soma',
+    'weight': cfg.inh_weight,
+    'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
+    'delay': 'dist_3D/propVelocity',
+    'synMech': 'exc',
+    'plast': {'mech': 'STDP', 'params': STDPparams}})

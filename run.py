@@ -17,7 +17,14 @@ simConfig, netParams = sim.readCmdLineArgs(simConfigDefault='config.py', netPara
 
 # Create network and run simulation
 #sim.createSimulateAnalyze(netParams=netParams, simConfig=simConfig)
-sim.create(simConfig = simConfig, netParams = netParams)
+#sim.create(simConfig = simConfig, netParams = netParams)
+sim.initialize(netParams, simConfig)  # create network object and set cfg and net params
+pops = sim.net.createPops()                  # instantiate network populations
+cells = sim.net.createCells()                 # instantiate network cells based on defined populations
+conns = sim.net.connectCells()                # create connections between cells based on params
+stims = sim.net.addStims()                    # add external stimulation to cells (IClamps etc)
+rxd = sim.net.addRxD()                    # add reaction-diffusion (RxD)
+simData = sim.setupRecording()             # setup variables to record for each cell (spikes, V traces, etc)
 
 # Initialisation
 sim.updateInterval = cfg.backgroundStimDelayPeriod
