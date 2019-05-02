@@ -114,19 +114,19 @@
     \endentry
     \entry{schmidhuber2015deep}{article}{}
       \name{author}{1}{}{%
-        {{hash=288bdbcfe1b91ad7484d7a24f74f99ed}{%
+        {{hash=c3a004dc2b8b6fb4dd79c5b8c1469da7}{%
            family={Schmidhuber},
            familyi={S\bibinitperiod},
-           given={J\"{u}rgen},
+           given={Jurgen},
            giveni={J\bibinitperiod}}}%
       }
       \list{publisher}{1}{%
         {Elsevier}%
       }
-      \strng{namehash}{288bdbcfe1b91ad7484d7a24f74f99ed}
-      \strng{fullhash}{288bdbcfe1b91ad7484d7a24f74f99ed}
-      \strng{authornamehash}{288bdbcfe1b91ad7484d7a24f74f99ed}
-      \strng{authorfullhash}{288bdbcfe1b91ad7484d7a24f74f99ed}
+      \strng{namehash}{c3a004dc2b8b6fb4dd79c5b8c1469da7}
+      \strng{fullhash}{c3a004dc2b8b6fb4dd79c5b8c1469da7}
+      \strng{authornamehash}{c3a004dc2b8b6fb4dd79c5b8c1469da7}
+      \strng{authorfullhash}{c3a004dc2b8b6fb4dd79c5b8c1469da7}
       \field{sortinit}{5}
       \field{sortinithash}{c9df3c9fb8f555dd9201cedc5e343021}
       \field{labelnamesource}{author}
@@ -336,8 +336,8 @@
     \endentry
     \entry{leveille2010running}{article}{}
       \name{author}{3}{}{%
-        {{hash=ac83a41dfe14f6e3efd87561d21c8514}{%
-           family={L\'{e}veill\'{e}},
+        {{hash=a6478e070bf7880e668564ab0598b015}{%
+           family={Leveille},
            familyi={L\bibinitperiod},
            given={Jasmin},
            giveni={J\bibinitperiod}}}%
@@ -355,10 +355,10 @@
       \list{publisher}{1}{%
         {Springer}%
       }
-      \strng{namehash}{bc21b4a7ab0a747c4840a5cc225dbbf8}
-      \strng{fullhash}{bc21b4a7ab0a747c4840a5cc225dbbf8}
-      \strng{authornamehash}{bc21b4a7ab0a747c4840a5cc225dbbf8}
-      \strng{authorfullhash}{bc21b4a7ab0a747c4840a5cc225dbbf8}
+      \strng{namehash}{6328d1fe848697300e0147674a75eeeb}
+      \strng{fullhash}{6328d1fe848697300e0147674a75eeeb}
+      \strng{authornamehash}{6328d1fe848697300e0147674a75eeeb}
+      \strng{authorfullhash}{6328d1fe848697300e0147674a75eeeb}
       \field{sortinit}{1}
       \field{sortinithash}{27a2bc5dfb9ed0a0422134d636544b5d}
       \field{labelnamesource}{author}
@@ -733,6 +733,43 @@
       \field{year}{2018}
       \field{pages}{461137}
       \range{pages}{1}
+    \endentry
+    \entry{gerstner2014neuronal}{book}{}
+      \name{author}{4}{}{%
+        {{hash=6b2c6d8dbc66b301f2a7077d805f0ba7}{%
+           family={Gerstner},
+           familyi={G\bibinitperiod},
+           given={Wulfram},
+           giveni={W\bibinitperiod}}}%
+        {{hash=c3534e1e61d1310f72e4721daa8ef1c1}{%
+           family={Kistler},
+           familyi={K\bibinitperiod},
+           given={Werner\bibnamedelima M},
+           giveni={W\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=806e000546180a087378a2d3beba9c69}{%
+           family={Naud},
+           familyi={N\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+        {{hash=b5ff96deb16b77fe4a862b665ba9b0c9}{%
+           family={Paninski},
+           familyi={P\bibinitperiod},
+           given={Liam},
+           giveni={L\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{f66ea5f277e66b979f91daf2a2cae956}
+      \strng{fullhash}{c683cb9d2d617ca7e0b815746e595f11}
+      \strng{authornamehash}{f66ea5f277e66b979f91daf2a2cae956}
+      \strng{authorfullhash}{c683cb9d2d617ca7e0b815746e595f11}
+      \field{sortinit}{2}
+      \field{sortinithash}{0aa614ace9f3a40ef5a67e7f7a184048}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Neuronal dynamics: From single neurons to networks and models of cognition}
+      \field{year}{2014}
     \endentry
   \endsortlist
 \endrefsection

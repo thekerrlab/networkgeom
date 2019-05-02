@@ -5,3 +5,5 @@ unused/
 *.log
 __pycache__/
 deconstructed*
+debug_run_test.py
+csvfiles/

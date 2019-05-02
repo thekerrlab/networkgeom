@@ -11,6 +11,7 @@ class Forage:
         self.height = height
         self.density = max(0, min(1, density)) # number from 0-1
         self.foodCollected = 0
+        self.movesTaken = 0
         self.occupancyGrid = []
         self.spriteLocation = spriteLocation()
         self.createField()
@@ -61,7 +62,7 @@ class Forage:
     # returns # of collected food (0 or 1)
     def movePlayer(self, direction):
         if direction == 5:
-            return
+            return 0
         # Set occupancy grid current spot to 0
         self.setOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y, 0)
         # Lateral movement
@@ -92,7 +93,23 @@ class Forage:
             self.foodCollected += 1
             collected = 1
         self.setOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y, 2)
+        if collected == 1:
+            self.addOneFoodToGrid()
+        self.movesTaken += 1
         return collected # return 0 or 1 depending on if food was collected
+
+    # Add food to empty square, loop along until empty grid loc encountered,
+    # starting at a random grid square.
+    def addOneFoodToGrid(self):
+        x = random.randint(0,self.width-1)
+        y = random.randint(0,self.height-1)
+        counter = 0
+        while self.getOccupancyGridLoc(x, y) != 0 and counter < self.width*self.height:
+            x = (x+1) % self.width
+            if x == 0:
+                y = (y+1) % self.height
+            counter += 1
+        self.setOccupancyGridLoc(x, y, 1)
 
     # Simple setter function for occupancy grid
     def setOccupancyGridLoc(self, x, y, value):
@@ -144,6 +161,44 @@ class Forage:
             index += self.width
         return list
 
+    # This looks at a subWidth X subHeight field centred on sprite, and then
+    # returns a list of numbers that are occupied. Similar to getOccupiedGridList
+    # but acts on a small subsection of the grid
+    def getVisibleAreaSubGridList(self, subWidth, subHeight):
+        # Get a subgrid centred on the sprite
+        if subWidth > self.width or subHeight > self.height:
+            return None
+        top_left_x = self.spriteLocation.x - math.floor((subWidth-1)/2)
+        top_left_x = (top_left_x + self.width) % self.width
+        top_left_y = self.spriteLocation.y - math.floor((subHeight-1)/2)
+        top_left_y = (top_left_y + self.height) % self.height
+        rows = 0
+        x = top_left_x
+        y = top_left_y
+        subgrid = []
+        while rows < subWidth:
+            cols = 0
+            subgrid.append([0]*subHeight)
+            while cols < subHeight:
+                subgrid[rows][cols] = self.getOccupancyGridLoc(x, y)
+                x = (x + 1 + self.width) % self.width
+                cols += 1
+            x = (x - subWidth + self.width) % self.width
+            y = (y + 1 + self.height) % self.height
+            rows += 1
+        # Now that grid is centred and of right size, get cell Occupancy list
+        subgrid_width = len(subgrid)
+        list = []
+        row_num = 0
+        for row in subgrid:
+            col_num = 0
+            for element in row:
+                if element == 1:
+                    list.append(row_num*subgrid_width + col_num)
+                col_num += 1
+            row_num += 1
+        return list
+
     # Simple print function
     def printField(self):
         for row in range(self.height):
@@ -161,3 +216,12 @@ class Forage:
                         else:
                             print(" ",end="")
                 print()
+
+    # Print performance
+    def printPerformance(self):
+        gatherRate = self.getGatheringRate()
+        print("Performance:")
+        print("\tGathering Rate: " + str(round(gatherRate,5)) + " food/move")
+
+    def getGatheringRate(self):
+        return self.foodCollected/self.movesTaken
