@@ -16,34 +16,61 @@ cfg.visibleSize = 7 # square area of this width and height
 
 # Size of populations
 cfg.input_pop_size = cfg.visibleSize*cfg.visibleSize
-cfg.middle_exc_pop_size = round(28*28/2)
-cfg.middle_inhib_pop_size = round(28*28/2)
+cfg.middle_pop_size = 28*28
+#cfg.middle_exc_pop_size = 28*28#round(28*28/2)
+#cfg.middle_inhib_pop_size = 0#round(28*28/2)
 cfg.output_pop_size = 9
 
-# Connection Weights
+# Connection and stimulation weights
+cfg.backgroundStimWeight = 0.01     # stimulation weight of the background input
 cfg.input_weight = 0.01              # Weight of input to middle connections
-cfg.exc_weight = 0.001               # Weight of excitory connections
-cfg.inh_weight = 0.5               # Weight of inhibitory connections
+cfg.middle_exc_weight = 0.0001               # Weight of excitory connections
+cfg.middle_inh_weight = 6*cfg.middle_exc_weight             # Weight of inhibitory connections
+cfg.middle_exc_weight_var = 0.01*cfg.middle_exc_weight
+cfg.middle_inh_weight_var = 0.01*cfg.middle_inh_weight
+
+#### Configuration options
+##################################################################
+cfg.uniformInhibitionWeight = True      # If true, all inhibitory connections are equally weighted
+##################################################################
+cfg.inputSynapseBalance = True          # heterosynaptic balancing
+cfg.balanceExcitatoryOnly = True        # inhibitatory neurons ignored if True, assumes rewarded STDP only on excitatory
+cfg.apply_leftovers = True              # Apply < 0 weights to next epoch ensuring net input synaptic activity
+##################################################################
+cfg.outputFrequencyTargeting = True
+cfg.outputCellFrequencyTarget = 1.6     # Hertz (for each output cell)
+cfg.outputCellTargetDelta = 0.0001      # Same as foraging paper
+##################################################################
+cfg.outputBalancing = True              # Output balancing method (modify STDP reward), assumes all->all conns M->O
+cfg.minimum_output_balance_ratio = 0.5  # If set to 0 it is possible to get /0 errors
+##################################################################
+cfg.randomMovementChange = 0.01         # set to 0 to turn off
+##################################################################
+
+# STDP
+cfg.stdp_reward = 1
+cfg.stdp_punish = -0.1
+
+# Number of stimulations (equates to number of moves in the simulation)
+cfg.numberOfEpochs = 250
+# Background delay between stims
+cfg.epochPeriod = 300 # ms
 
 # Number of connections between each input cell and middle layer cell
 cfg.fan_in = 9
 
-# Background stimulation
-cfg.backgroundStimWeight = 0.01     # stimulation weight of the background input
-
-# Background delay between stims
-cfg.backgroundStimDelayPeriod = 300
-# Number of stimulations (equates to number of moves in the simulation)
-cfg.backgroundStimNumber = 100
+# Some names set in the conifg space to maintain consistency between run and network
+cfg.excitatory_connection_name = 'exc'
+cfg.inhibitory_connection_name = 'inh'
 
 # Other variables
-cfg.max_conn_probability = 0.05      # Maximum probability of a connection (when dist = 0)
+#cfg.max_conn_probability = 0.05      # Maximum probability of a connection (when dist = 0)
 cfg.exp_dist_factor_prob = 2.0      # Amplifies the distance dependence
 cfg.prob_length_const = 150.0       # length at which probability = exp_dist_factor_prob*max_conn_probability/e
 cfg.propagation_velocity = 100.0    # propagation velocity (um/ms)
 
 # Simulation parameters
-cfg.duration = cfg.backgroundStimDelayPeriod*cfg.backgroundStimNumber   # Duration of the simulation, in ms
+cfg.duration = cfg.epochPeriod*cfg.numberOfEpochs   # Duration of the simulation, in ms
 cfg.dt = 0.5                     # Internal integration timestep to use
 cfg.seeds = {'conn': 1, 'stim': 1, 'loc': 1} # Seeds for randomizers (connectivity, input stimulation and cell locations)
 cfg.createNEURONObj = True        # create HOC objects when instantiating network
@@ -51,6 +78,9 @@ cfg.createPyStruct = True         # create Python structure (simulator-independe
 cfg.timing = True                 # show timing  and save to file
 cfg.verbose = False               # show detailed messages
 cfg.printPopAvgRates = True       # Print some additional info
+
+# Custom verbose
+cfg.custom_verbose = True
 
 # Recording
 cfg.recordCells = [0]  # list of cells to record from
@@ -77,7 +107,7 @@ cfg.saveCsvFiles = True
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
-cfg.analysis['plotTraces'] = {'include': cfg.recordCells} # plot recorded traces for this list of cells
-cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'Input', 'Izhi_excit', 'Izhi_inhib', 'Output'], 'smooth': 10}
-cfg.analysis['plot2Dnet'] = True
-cfg.analysis['plotConn'] = True
+# cfg.analysis['plotTraces'] = {'include': cfg.recordCells} # plot recorded traces for this list of cells
+# cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'Input', 'Middle', 'Output'], 'smooth': 10}
+# cfg.analysis['plot2Dnet'] = True
+# cfg.analysis['plotConn'] = True

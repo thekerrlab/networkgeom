@@ -23,7 +23,7 @@ def modesFromList(list):
 
 # Prints a progress bar and percentage, progress between 0 and 1
 def printProgress(progress):
-    print("\t|", end="")
+    print("\tProgress \t|", end="")
     progress *= 100
     increment = 5
     for i in range(1,round(100/increment) + 1):
@@ -31,7 +31,7 @@ def printProgress(progress):
             print("#", end="")
         else:
             print(" ", end="")
-    print("| " + str(round(progress,1)) + "%")
+    print("| " + str(round(progress,2)) + "%")
 
 # Returns dictionary of stats:
 # {'sum': X, 'mean': Y, 'var': Z}
@@ -45,16 +45,22 @@ def getStats(list):
 # Print spike weight statistics
 def printStats(list):
     stats = getStats(list)
-    print("\tSum: " + str(stats['sum']))
-    print("\tMean: " + str(stats['mean']))
-    print("\tVar: " + str(stats['var']))
+    print("\t\tSum: " + str(stats['sum']))
+    print("\t\tMean: " + str(stats['mean']))
+    print("\t\tVar: " + str(stats['var']))
 
-# Save files
-def saveMatrixInFile(list, filename):
+# Save files, mode 0 for a list of numbers, mode 1 for a list of rows (each a list)
+def saveMatrixInFile(list, filename, mode):
     try:
         with open(filename, 'w') as file:
             writer = csv.writer(file)
-            writer.writerow(list)
+            if mode == 0:
+                writer.writerow(list)
+            elif mode == 1:
+                for row in list:
+                    writer.writerow(row)
+            else:
+                print("invalid mode given")
         print("Saved data to file " + filename)
     except:
-        print("Failed to open or write to file")
+        print("Failed to open or write to file " + filename)

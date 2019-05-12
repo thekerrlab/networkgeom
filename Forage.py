@@ -1,5 +1,6 @@
 import random
 import math
+import csv
 
 class spriteLocation:
     pass
@@ -14,6 +15,8 @@ class Forage:
         self.movesTaken = 0
         self.occupancyGrid = []
         self.spriteLocation = spriteLocation()
+        self.path = []
+        self.collectedFoodLocations = []
         self.createField()
         print("Forage object created of size " + str(width) + "x" + str(height)\
             + " of density " + str(density))
@@ -50,6 +53,7 @@ class Forage:
         # Set the sprite location to be between x = 0 to width-1, y = 0 to height-1
         self.spriteLocation.x = random.randint(0,self.width-1)
         self.spriteLocation.y = random.randint(0,self.height-1)
+        self.path.append([self.spriteLocation.x, self.spriteLocation.y])
         #self.occupancyGrid[self.spriteLocation.y][self.spriteLocation.x] = 2
         self.setOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y, 2)
 
@@ -90,11 +94,13 @@ class Forage:
         # Set next occupancy grid current spot to 2, and collect any food
         collected = 0 # flag for collected food
         if self.getOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y) == 1:
+            self.collectedFoodLocations.append([self.spriteLocation.x, self.spriteLocation.y])
             self.foodCollected += 1
             collected = 1
         self.setOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y, 2)
         if collected == 1:
             self.addOneFoodToGrid()
+        self.path.append([self.spriteLocation.x, self.spriteLocation.y])
         self.movesTaken += 1
         return collected # return 0 or 1 depending on if food was collected
 
@@ -225,3 +231,41 @@ class Forage:
 
     def getGatheringRate(self):
         return self.foodCollected/self.movesTaken
+
+    def writePathToCSV(self, path_filename, collected_food_filename, final_grid_filename):
+        # Path
+        try:
+            with open(path_filename, 'w') as file:
+                writer = csv.writer(file)
+                try:
+                    for location in self.path:
+                        writer.writerow(location)
+                except:
+                    print("Row writing failure")
+            print("Saved data to file " + path_filename)
+        except:
+            print("Failed to open or write to file " + path_filename)
+        # Collected food locations
+        try:
+            with open(collected_food_filename, 'w') as file:
+                writer = csv.writer(file)
+                try:
+                    for location in self.collectedFoodLocations:
+                        writer.writerow(location)
+                except:
+                    print("Row writing failure")
+            print("Saved data to file " + collected_food_filename)
+        except:
+            print("Failed to open or write to file " + collected_food_filename)
+        # Final map
+        try:
+            with open(final_grid_filename, 'w') as file:
+                writer = csv.writer(file)
+                try:
+                    for row in self.occupancyGrid:
+                        writer.writerow(row)
+                except:
+                    print("Row writing failure")
+            print("Saved data to file " + final_grid_filename)
+        except:
+            print("Failed to open or write to file " + final_grid_filename)

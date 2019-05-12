@@ -134,16 +134,28 @@ The basic unit of signal transmission is the ``action potential'', a sharp volta
 	\label{eqn:leaky_integrate_and_fire_threshold}
 \end{equation}
 
-This model is of course an extremely simplified model of a neuron, and so far more sophisticated models, non-linear ``Generalised'' Integrate-and-Fire models, have been developed based on the real biophysical properties of neurons found experimentally. This dates back to at least the 1950s with the Hodgkin-Huxley model of a giant squid's neuron that led to Hodgkin and Huxley's Nobel prize in 1963. The neuron membrane has hundreds of types of ion channels and this rich biophysics leads to much nuance in neuron electrical behaviour. This includes hyper-polarisation of the cell and refractory periods of suppressed firing, spike-frequency adaptation, sub-threshold effects and post-inhibitory rebound. Exponential and quadratic Integrate-and-Fire models with adaptation and stochastic variables are some examples of non-linear models that have been reasonably fit to experimental data. When these models are used for their appropriate class of simulated neurons, we are able to generate networks that exhibit biologically realistic behaviour. It is with populations of neurons that this report is able to create a biological, spiking neural network.
+This model is of course an extremely simplified model of a neuron, and so far more sophisticated models, non-linear ``Generalised'' Integrate-and-Fire models, have been developed based on the empirical biophysical properties of neurons. This dates back to at least the 1950s with the Hodgkin-Huxley model of a giant squid's neuron that led to Hodgkin and Huxley's Nobel prize in 1963. The neuron membrane has hundreds of types of ion channels and this rich biophysics leads to much nuance in neuron electrical behaviour. This includes hyper-polarisation of the cell and refractory periods of suppressed firing, spike-frequency adaptation, sub-threshold effects and post-inhibitory rebound. Exponential and quadratic Integrate-and-Fire models with adaptation and stochastic variables are some examples of non-linear models that have been reasonably fit to experimental data. When these models are used for their appropriate class of simulated neurons, we are able to generate networks that exhibit biologically realistic behaviour. It is important to introduce at this point the concept of inhibition in neuronal networks. Inhibitory neurons, unlike excitatory neurons which have been discussed so far, produce action potentials that decrease the membrane potential of the receiving neuron rather than increase it, meaning that the receiving neuron must receive more excitatory input in order to overcome its threshold and fire compared to what it normally would. Inhibitory neurons maintain balance in a network, preventing it from becoming over-stimulated or ``epileptic''. It is with populations of excitatory and inhibitory neurons that  biological, spiking neural networks can be created.
 
-Finally we can manipulate the strengths, or weights, of the neuronal connections using spike time dependent plasticity
-\colorbox{red}{FINISH STDP}
-
-
+The final major component of the neural network model is how it is able to be modified over time. The approach taken is reinforcement learning through spike time dependent plasticity (\acs{STDP}). \acs{STDP} is simply the increasing of the strength of a connection if the input, or pre-synaptic spike to a neuron is followed by a post-synaptic spike, also called a ``pre before post'' event \cite{sanda2017multi}. In unsupervised \acs{STDP}, whenever this occurs the connection between the respective neurons is increased, and conversely if a ``post before pre'' event occurs the connection is weakened. This report will utilise a form of reinforcement learning \acs{STDP} mechanism, whereby the strengthening or weakening of a connection that experiences a ``pre before post'' event is delayed and the selection of reward or punishment is chosen based on a heuristic.
 
 \section*{Methods}
-%\subsection*{title}
-\newpage
+\subsection*{The Foraging Problem and Network Structure}
+The details of the foraging problem are almost identical to that of Sanda et al.'s implementation \cite{sanda2017multi}, in which ``epochs'' of 300 milliseconds with a 0.5 millisecond timestep divided up the simulation time. The virtual environment was composed of a 49 by 49 occupancy grid containing some density of randomly scattered food. At the end of each epoch, the virtual sprite moved one square in one of the eight compass directions and if any food occupied that square, it was ``gathered'' and another food item was placed randomly on the map to maintain constant density. Each epoch lasted enough time for the neural network to receive input stimuli, process this stimuli and produce an output. The neural network itself contained three layers; an 7 by 7 input layer (I), a 28 by 28 middle layer (M) and 3 by 3 output layer (O). The input layer which provided the only stimulus to the network is related to the 7 by 7 area around the virtual sprite, such that at each epoch, only the neurons in this layer that corresponded to a food-occupied grid location were stimulated. Thus, the ``middle'' neuron of this layer corresponding to the virtual sprite was never stimulated, 8 neurons of the layer corresponded to the inner circle around the sprite, 16 corresponded to one move further out and 24 corresponded to the outermost circle of occupancy in the visual field of the sprite. Each of these input layer neurons had uniform weight excitatory connections to 9 randomly selected middle layer neurons, and each of these middle layer neurons are connected to every output layer neuron with weights initially drawn from a normal distribution. The output layer neurons correspond to a compass direction with the middle neuron unused. The highest spiking neuron of the output neurons was used as the direction, and pseudo-random numbers were generated to break ties. Additionally to prevent movement cycles in the learning process, a 1\% chance was introduced for a random direction to be chosen irrespective of activity in the output layer.
+
+\subsection*{Implementing \acs{STDP}}
+
+\subsection*{Synaptic Balancing Mechanisms}
+\subsubsection*{1. Heterosynaptic Balancing}
+\subsubsection*{2. Frequency Targeting}
+
+\section*{Results}
+
+\section*{Discussion}
+
+\section*{Conclusion}
+
 \printbibliography{}
+
+\section*{Contribution and Reflection}
 
 \end{document}
