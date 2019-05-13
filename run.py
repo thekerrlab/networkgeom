@@ -18,9 +18,9 @@ sim.create(simConfig = simConfig, netParams = netParams)
 
 # Initialisation
 sim.updateInterval = cfg.epochPeriod
-sim.excStdpWeights = [] # Store weight changes here
-sim.inhWeights = [] # Store inhibitory neuron weights here
-sim.excStdpWeightsStats = {} # Store stats about weights here
+sim.excOutWeights = [] # Store weight changes here
+sim.inhOutWeights = [] # Store inhibitory neuron weights here
+#sim.excOutWeightsStats = {} # Store stats about weights here
 sim.performances = [] # Store post-epoch performance here
 sim.outputFrequencies = [] # Store output cell firing frequencies here
 
@@ -32,12 +32,17 @@ forage.printField()
 forageCellList = forage.getVisibleAreaSubGridList(cfg.visibleSize,cfg.visibleSize)
 print("Initial cells to stimulate:" + str(forageCellList))
 
-#numberCells = cfg.input_pop_size + cfg.middle_exc_pop_size \
+#numberOfCells = cfg.input_pop_size + cfg.middle_exc_pop_size \
                 #+ cfg.middle_inhib_pop_size + cfg.output_pop_size
-numberCells = cfg.input_pop_size + cfg.middle_pop_size + cfg.output_pop_size
+numberOfCells = cfg.input_pop_size + cfg.middle_pop_size + cfg.output_pop_size
 
-outputCellSize = cfg.output_pop_size
-indexOfFirstOutputCell = numberCells - outputCellSize
+# Give each cell connection in input layer a 'Input' source
+for i in range(cfg.input_pop_size):
+    for conn in sim.net.cells[i].conns:
+        conn['source'] = 'Input'
+
+# Configure some counting indices
+indexOfFirstOutputCell = numberOfCells - cfg.output_pop_size
 indexOfFirstUnprocessedSpike = 0
 
 # Frequency recording over all epochs
@@ -60,6 +65,15 @@ if cfg.outputFrequencyTargeting:
 if cfg.randomMovementChange > 0:
     numberOfRandomMovementsCounter = 0
 
+# Precompute which connections of each cell are the excitatory connections
+if (cfg.inputSynapseBalance and cfg.balanceExcitatoryOnly) or cfg.outputFrequencyTargeting:
+    excitatoryConnectionsList = [0]*numberOfCells
+    inhibitoryConnectionsList = [0]*numberOfCells
+    for cellNum in range(numberOfCells):
+        cell = sim.net.cells[cellNum]
+        excitatoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.excitatory_connection_name]
+        inhibitoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.inhibitory_connection_name]
+
 # Define leftover_synaptic_inputs as the amount of synaptic input that is nullified by all
 # max(0, weight) operations for a cell. It is subtracted equally amongst all connections
 # on the next epoch and re-set each epoch
@@ -74,42 +88,48 @@ if cfg.outputBalancing:
             middleCellsInitialOutputWeightSum[middleCellNum] += cell.conns[middleCellNum].weight
 
 # Update function
+epochCounter = 1
 # t = time in simulation
 def update(t):
     # global variables so that update can see them (alternatively make them part of sim)
+    global epochCounter
+    global numberOfCells
     global indexOfFirstUnprocessedSpike
     global forageCellList
+    global outputCells
     global outputCellFrequencies
     global outputCellNumSpikes
     global outputCellExcSynapseInput
     global outputCellTargetExcSynapseInput
     global numberOfRandomMovementsCounter
     global leftover_synaptic_inputs
+    global excitatoryConnectionsList
+    global inhibitoryConnectionsList
     # Update
-    print("\nEPOCH UPDATE (t=)" + str(t) + "):")
-    # Print Progress:
-    progress = t/cfg.duration
-    printProgress(progress)
+    print("\nEPOCH UPDATE ({}, t={} ms)".format(epochCounter,t))
+    epochCounter += 1
+    printProgress(t/cfg.duration)
     # Extract output cell activity to get direction
     spikingCells = sim.simData['spkid']
     spikingOutputCells = [spikingCell for spikingCell in spikingCells if spikingCell >= indexOfFirstOutputCell]
     # Only move player if there are unprocessed spikes, otherwise leave critic = 0
-    print("\tNumber of output spikes thus far: " + str(len(spikingOutputCells)))
+    print("\tNumber of output spikes thus far = {}".format(len(spikingOutputCells)))
     if len(spikingOutputCells) > indexOfFirstUnprocessedSpike:
         nextFirstIdx = len(spikingOutputCells) # Hold this variables temporarily
         # Strip to look at only unseen spikes
         spikingOutputCells = spikingOutputCells[indexOfFirstUnprocessedSpike:]
-        print("\tNumber of new spikes this epoch: " + str(len(spikingOutputCells)))
         indexOfFirstUnprocessedSpike = nextFirstIdx
-        print("\tCells with new spikes: " + str(spikingOutputCells))
+        print("\tNumber of new spikes this epoch = {}".format(len(spikingOutputCells)))
+        if cfg.custom_verbose:
+            print("\tCells with new spikes: " + str(spikingOutputCells))
         # Record num new spikes of output cell
         for cellNum in range(cfg.output_pop_size):
             cell_index = indexOfFirstOutputCell + cellNum
             outputCellNumSpikes[cellNum] += len([spike for spike in spikingOutputCells if spike == cell_index])
-        # Find most active output cell
+        # Find most active output cell, (pick a random one if ties)
         mostActiveOutputCells = modesFromList(spikingOutputCells)
         mostActiveOutputCell = mostActiveOutputCells[random.randint(0,len(mostActiveOutputCells)-1)]
-        # Determine direction ot move
+        # Determine direction to move
         direction = mostActiveOutputCell - indexOfFirstOutputCell + 1 # range of 1-9
         # Chance for random direction:
         if random.uniform(0, 1) < cfg.randomMovementChange:
@@ -140,25 +160,24 @@ def update(t):
         critic = cfg.stdp_reward
     else:
         critic = cfg.stdp_punish
-    print("\tDirection code: " + str(direction))
-    print("\tCritic: " + str(critic))
+    print("\tDirection code: {}\tCritic: {}".format(direction, critic))
     # Reward or punish depending on critic
-    total_change_to_cells = 0
+    if cfg.custom_verbose:
+        total_change_to_cells = 0
     total_weight_change = 0
-    for cellNum in range(len(sim.net.cells)):
-        cell = sim.net.cells[cellNum]
+    for cellNum in range(numberOfCells):
         if cfg.inputSynapseBalance:
             # Extract the connections we are interested in:
             if cfg.balanceExcitatoryOnly:
-                connections = [conn for conn in cell.conns if conn.synMech == cfg.excitatory_connection_name]
+                connections = excitatoryConnectionsList[cellNum]
             else:
-                connections = cell.conns
+                connections = sim.net.cells[cellNum].conns
             number_of_connections = len(connections)
             # array holding accumulative adjustments for each connection
             conn_adjustments = numpy.array([0.0] * number_of_connections)
         else:
             # Extract the connections we are interested in:
-            connections = cell.conns
+            connections = sim.net.cells[cellNum].conns
             number_of_connections = len(connections)
         # Loop through the connections we are interested in
         for connNum in range(number_of_connections):
@@ -190,7 +209,7 @@ def update(t):
                     deltaW = weight_change/(number_of_connections-1)
                     # Adjust whole array:
                     conn_adjustments -= deltaW
-                    # undo adjustment for the changed connection:
+                    # undo adjustment for the 1 changed connection or else we overcount
                     conn_adjustments[connNum] += deltaW
         if cfg.apply_leftovers:
             if leftover_synaptic_inputs[cellNum] > 0 and number_of_connections > 0:
@@ -200,8 +219,7 @@ def update(t):
             leftover_synaptic_inputs[cellNum] = 0
         if cfg.inputSynapseBalance:
             # Change every connection
-            if sum(conn_adjustments) != 0:
-                #print("\ttotal adjustment to conn = {:.3e}".format(sum(conn_adjustments)))
+            if cfg.custom_verbose and sum(conn_adjustments) != 0:
                 total_change_to_cells += sum(conn_adjustments)
             for connNum in range(number_of_connections):
                 conn = connections[connNum]
@@ -212,74 +230,62 @@ def update(t):
                 conn['hObj'].weight[0] = max(0, conn['hObj'].weight[0])
     # After STDP events, adjust weight of all excitatory input synapses
     if cfg.outputFrequencyTargeting:
-        outputCells = sim.net.cells[-cfg.output_pop_size:]
         for cellNum in range(cfg.output_pop_size):
             cell = outputCells[cellNum]
             # Calculate scale factor and set next outputCellExcSynapseInput
             scaleFactor = outputCellTargetExcSynapseInput[cellNum]/outputCellExcSynapseInput[cellNum]
             outputCellExcSynapseInput[cellNum] *= scaleFactor
-            for conn in cell.conns:
+            for conn in excitatoryConnectionsList[cellNum]:
                 # Only change the excitatory connections
-                if conn.synMech == cfg.excitatory_connection_name:
-                    #print("{:.5e}\t".format(conn['hObj'].weight[0]), end="")
-                    #conn['hObj'].weight[0] = max(0, conn['hObj'].weight[0] * scaleFactor)
-                    conn['hObj'].weight[0] *= scaleFactor
-                    #print("{:.5e}\t".format(conn['hObj'].weight[0]), end="")
-                    #print("{:.5e}\t".format(scaleFactor), end="")
-                    #print(str(conn.get('hSTDP')))
-    if cfg.inputSynapseBalance:
+                conn['hObj'].weight[0] *= scaleFactor
+    if cfg.custom_verbose and cfg.inputSynapseBalance:
         print("\ttotal recorded weight change = {:.3e}".format(total_weight_change))
         print("\ttotal adjustment to other cells = {:.3e}".format(total_change_to_cells))
 
     # store weight changes to analyse later
-    sim.excStdpWeights.append([])
-    sim.inhWeights.append([])
-    for cell in sim.net.cells:
-        for conn in cell.conns:
-            if 'hSTDP' in conn and conn.synMech == cfg.excitatory_connection_name:
-                sim.excStdpWeights[-1].append(float(conn['hObj'].weight[0]))
-            elif conn.synMech == cfg.inhibitory_connection_name:
-                sim.inhWeights[-1].append(float(conn['hObj'].weight[0]))
+    sim.excOutWeights.append([])
+    sim.inhOutWeights.append([])
+    for cellNum in range(numberOfCells-cfg.output_pop_size, numberOfCells):
+        for conn in excitatoryConnectionsList[cellNum]:
+            sim.excOutWeights[-1].append(float(conn['hObj'].weight[0]))
+        for conn in inhibitoryConnectionsList[cellNum]:
+            sim.inhOutWeights[-1].append(float(conn['hObj'].weight[0]))
 
     # Send a new burst for new cells
     forageCellList = forage.getVisibleAreaSubGridList(cfg.visibleSize,cfg.visibleSize)
     for i in range(cfg.input_pop_size):
-        for conn in sim.net.cells[i].conns:
-            conn['source'] = 'Input'
-            sim.net.cells[i].tags['turnOnFlag'] = 0
         if i in forageCellList:
             sim.net.cells[i].tags['turnOnFlag'] = 1
+        else:
+            sim.net.cells[i].tags['turnOnFlag'] = 0
     sim.net.modifyStims({'conds': {'source': 'Input'}, 'cellConds': {'cellType': 'In', 'turnOnFlag': 1}, 'weight': cfg.backgroundStimWeight})
     sim.net.modifyStims({'conds': {'source': 'Input'}, 'cellConds': {'cellType': 'In', 'turnOnFlag': 0}, 'weight': 0})
-    print("\tCells to stimulate next: " + str(forageCellList))
 
     # Performance and analysis
-    forage.printPerformance()
     sim.performances.append(forage.getGatheringRate())
-    if cfg.custom_verbose:
-        print("\tTotal number of STDP connections: " + str(len(sim.excStdpWeights[0])))
-        print("\tInitial weights of STDP connections:")
-        printStats(sim.excStdpWeights[0])
-        if len(sim.excStdpWeights) > 1:
-            print("\tPrevious weights of STDP connections:")
-            printStats(sim.excStdpWeights[-2])
-            print("\tTotal weight change to final = {:.5f}".format(sum(sim.excStdpWeights[-1])-sum(sim.excStdpWeights[-2])))
-        print("\tFinal weights of STDP connections:")
-        printStats(sim.excStdpWeights[-1])
-    stats = getStats(sim.excStdpWeights[-1])
-    for key in stats.keys():
-        if sim.excStdpWeightsStats.get(key) == None:
-            sim.excStdpWeightsStats[key] = []
-        sim.excStdpWeightsStats[key].append(stats[key])
     sim.outputFrequencies.append(list(outputCellFrequencies))
-    print("\tOutput Population Spiking Frequency:")
-    print("\tc1:{:.3f} c2:{:.3f} c3:{:.3f} c4:{:.3f} c5:{:.3f} c6:{:.3f} c7:{:.3f} c8:{:.3f} c9:{:.3f}".format(*outputCellFrequencies))
-    printStats(outputCellFrequencies)
-    if cfg.outputFrequencyTargeting and cfg.custom_verbose:
-        print("\tOutput Population Excitatory Synapse Input:")
-        print("\tc1:{:.5f} c2:{:.5f} c3:{:.5f} c4:{:.5f} c5:{:.5f} c6:{:.5f} c7:{:.5f} c8:{:.5f} c9:{:.5f}".format(*outputCellExcSynapseInput))
-        print("\tOutput Population Excitatory Synapse Input Target:")
-        print("\tc1:{:.5f} c2:{:.5f} c3:{:.5f} c4:{:.5f} c5:{:.5f} c6:{:.5f} c7:{:.5f} c8:{:.5f} c9:{:.5f}".format(*outputCellTargetExcSynapseInput))
+
+    # Printing
+    if cfg.custom_verbose:
+        print("\tCells to stimulate next: " + str(forageCellList))
+        forage.printPerformance()
+        print("\tTotal number of STDP connections: " + str(len(sim.excOutWeights[0])))
+        print("\tInitial weights of STDP connections:")
+        printStats(sim.excOutWeights[0])
+        if len(sim.excOutWeights) > 1:
+            print("\tPrevious weights of STDP connections:")
+            printStats(sim.excOutWeights[-2])
+            print("\tTotal weight change to final = {:.5f}".format(sum(sim.excOutWeights[-1])-sum(sim.excOutWeights[-2])))
+        print("\tFinal weights of STDP connections:")
+        printStats(sim.excOutWeights[-1])
+        print("\tOutput Population Spiking Frequency:")
+        print("\tc1:{:.3f} c2:{:.3f} c3:{:.3f} c4:{:.3f} c5:{:.3f} c6:{:.3f} c7:{:.3f} c8:{:.3f} c9:{:.3f}".format(*outputCellFrequencies))
+        printStats(outputCellFrequencies)
+        if cfg.outputFrequencyTargeting:
+            print("\tOutput Population Excitatory Synapse Input:")
+            print("\tc1:{:.5f} c2:{:.5f} c3:{:.5f} c4:{:.5f} c5:{:.5f} c6:{:.5f} c7:{:.5f} c8:{:.5f} c9:{:.5f}".format(*outputCellExcSynapseInput))
+            print("\tOutput Population Excitatory Synapse Input Target:")
+            print("\tc1:{:.5f} c2:{:.5f} c3:{:.5f} c4:{:.5f} c5:{:.5f} c6:{:.5f} c7:{:.5f} c8:{:.5f} c9:{:.5f}".format(*outputCellTargetExcSynapseInput))
 
 # Run simulation
 sim.runSimWithIntervalFunc(sim.updateInterval, update)   # run parallel Neuron simulation
@@ -289,12 +295,9 @@ sim.analysis.plotData()                                         # plot spike ras
 
 if cfg.saveCsvFiles:
     saveMatrixInFile(sim.performances, 'csvfiles/performances.csv', 0)
-    saveMatrixInFile(sim.excStdpWeightsStats['sum'], 'csvfiles/weights_sum.csv', 0)
-    saveMatrixInFile(sim.excStdpWeightsStats['mean'], 'csvfiles/weights_mean.csv', 0)
-    saveMatrixInFile(sim.excStdpWeightsStats['var'], 'csvfiles/weights_var.csv', 0)
     saveMatrixInFile(sim.simData['spkid'], 'csvfiles/spkid.csv', 0)
     saveMatrixInFile(sim.simData['spkt'], 'csvfiles/spkt.csv', 0)
-    saveMatrixInFile(sim.excStdpWeights, 'csvfiles/exc_stdp_weights.csv', 1)
-    saveMatrixInFile(sim.inhWeights, 'csvfiles/inh_weights.csv', 1)
+    saveMatrixInFile(sim.excOutWeights, 'csvfiles/exc_out_weights.csv', 1)
+    saveMatrixInFile(sim.inhOutWeights, 'csvfiles/inh_out_weights.csv', 1)
     saveMatrixInFile(sim.outputFrequencies, 'csvfiles/output_cell_frequencies.csv', 1)
     forage.writePathToCSV('csvfiles/path.csv', 'csvfiles/collected_food.csv', 'csvfiles/final_grid.csv')

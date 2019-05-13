@@ -62,11 +62,13 @@ class Forage:
     # 4 5 6   =>     W C  E
     # 7 8 9         SW S SE
     # Note that coordinate system is top left is (0,0)
-    # 5 does nothing
+    # 5 picks a random direction
     # returns # of collected food (0 or 1)
     def movePlayer(self, direction):
         if direction == 5:
-            return 0
+            direction = random.randint(1, 8)
+            if direction >= 5: # map 5-8 to 6-9
+                direction += 1
         # Set occupancy grid current spot to 0
         self.setOccupancyGridLoc(self.spriteLocation.x, self.spriteLocation.y, 0)
         # Lateral movement

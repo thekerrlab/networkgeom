@@ -25,7 +25,7 @@ def modesFromList(list):
 def printProgress(progress):
     print("\tProgress \t|", end="")
     progress *= 100
-    increment = 5
+    increment = 2
     for i in range(1,round(100/increment) + 1):
         if round(progress,1) - increment*i >= 0:
             print("#", end="")
@@ -58,7 +58,8 @@ def saveMatrixInFile(list, filename, mode):
                 writer.writerow(list)
             elif mode == 1:
                 for row in list:
-                    writer.writerow(row)
+                    if len(row) != 0:
+                        writer.writerow(row)
             else:
                 print("invalid mode given")
         print("Saved data to file " + filename)

@@ -24,8 +24,8 @@ cfg.output_pop_size = 9
 # Connection and stimulation weights
 cfg.backgroundStimWeight = 0.01     # stimulation weight of the background input
 cfg.input_weight = 0.01              # Weight of input to middle connections
-cfg.middle_exc_weight = 0.0001               # Weight of excitory connections
-cfg.middle_inh_weight = 6*cfg.middle_exc_weight             # Weight of inhibitory connections
+cfg.middle_exc_weight = 0.0008               # Weight of excitory connections
+cfg.middle_inh_weight = 2.0*cfg.middle_exc_weight             # Weight of inhibitory connections
 cfg.middle_exc_weight_var = 0.01*cfg.middle_exc_weight
 cfg.middle_inh_weight_var = 0.01*cfg.middle_inh_weight
 
@@ -52,7 +52,7 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 5000
+cfg.numberOfEpochs = 100
 # Background delay between stims
 cfg.epochPeriod = 300 # ms
 
@@ -80,19 +80,19 @@ cfg.verbose = False               # show detailed messages
 cfg.printPopAvgRates = True       # Print some additional info
 
 # Custom verbose
-cfg.custom_verbose = True
+cfg.custom_verbose = False
 
 # Recording
-cfg.recordCells = [0]  # list of cells to record from
-cfg.recordTraces = {'V':{'sec':'soma','loc':0.5,'var':'v'},
-                    'u':{'sec':'soma', 'pointp':'Izhi', 'var':'u'},
-                    'I':{'sec':'soma', 'pointp':'Izhi', 'var':'i'},
-                    'bkg': {'sec':'soma', 'loc':0.5, 'synMech':'bkg', 'var':'i'},
-                    'exc': {'sec':'soma', 'loc':0.5, 'synMech':'exc', 'var':'i'},
-                    'inh': {'sec':'soma', 'loc':0.5, 'synMech':'inh', 'var':'i'},
-                    }
+# cfg.recordCells = [0]  # list of cells to record from
+# cfg.recordTraces = {'V':{'sec':'soma','loc':0.5,'var':'v'},
+#                     'u':{'sec':'soma', 'pointp':'Izhi', 'var':'u'},
+#                     'I':{'sec':'soma', 'pointp':'Izhi', 'var':'i'},
+#                     'bkg': {'sec':'soma', 'loc':0.5, 'synMech':'bkg', 'var':'i'},
+#                     'exc': {'sec':'soma', 'loc':0.5, 'synMech':'exc', 'var':'i'},
+#                     'inh': {'sec':'soma', 'loc':0.5, 'synMech':'inh', 'var':'i'},
+#                     }
 cfg.recordStim = True  # record spikes of cell stims
-cfg.recordStep = 0.025 # Step size in ms to save data (eg. V traces, LFP, etc)
+cfg.recordStep = 0.5 # Step size in ms to save data (eg. V traces, LFP, etc)
 
 # Saving
 cfg.filename = 'networkgeom'  # Set file output name
