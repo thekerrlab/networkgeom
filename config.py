@@ -52,7 +52,7 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 250
+cfg.numberOfEpochs = 5000
 # Background delay between stims
 cfg.epochPeriod = 300 # ms
 

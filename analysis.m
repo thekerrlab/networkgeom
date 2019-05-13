@@ -11,38 +11,53 @@ animate = false;
 animate_speed = 100; % Frequency
 
 % Read files
-perf = csvread('csvfiles/performances.csv');
-sumW = csvread('csvfiles/weights_sum.csv');
-meanW = csvread('csvfiles/weights_mean.csv');
-varW = csvread('csvfiles/weights_var.csv');
-%init_weights = csvread('csvfiles/weights_init.csv');
-%final_weights = csvread('csvfiles/weights_final.csv');
-exc_stdp_weights = csvread('csvfiles/exc_stdp_weights.csv');
-inh_weights = csvread('csvfiles/inh_weights.csv');
+fprintf('READING performances.csv...');
+perf = csvread('csvfiles/performances.csv');fprintf(' READ.\n');
+fprintf('READING weights_sum.csv...');
+sumW = csvread('csvfiles/weights_sum.csv');fprintf(' READ.\n');
+fprintf('READING weights_mean.csv...');
+meanW = csvread('csvfiles/weights_mean.csv');fprintf(' READ.\n');
+fprintf('READING weights_var.csv...');
+varW = csvread('csvfiles/weights_var.csv');fprintf(' READ.\n');
+fprintf('READING exc_stdp_weights.csv...');
+exc_stdp_weights = csvread('csvfiles/exc_stdp_weights.csv');fprintf(' READ.\n');
+fprintf('READING inh_weights.csv...');
+inh_weights = csvread('csvfiles/inh_weights.csv');fprintf(' READ.\n');
+fprintf('READING path.csv...');
+path_data = csvread('csvfiles/path.csv');fprintf(' READ.\n');
+try
+    fprintf('READING collected_food.csv...');
+    collected_food = csvread('csvfiles/collected_food.csv');fprintf(' READ.\n');
+catch
+    collected_food = [];
+end
+fprintf('READING final_grid.csv...');
+final_grid = csvread('csvfiles/final_grid.csv');fprintf(' READ.\n');
+try
+    fprintf('READING output_cell_frequencies.csv...');
+    output_cell_frequencies = csvread('csvfiles/output_cell_frequencies.csv');fprintf(' READ.\n');
+catch
+    output_cell_frequencies = [];
+end
+fprintf('READING spkid.csv...');
+spkid = csvread('csvfiles/spkid.csv');fprintf(' READ.\n');
+spkid = spkid';
+fprintf('READING spkt.csv...');
+spkt = csvread('csvfiles/spkt.csv');fprintf(' READ.\n');
+spkt = spkt';
+
 init_exc_stdp_weights = exc_stdp_weights(1,:);
 final_exc_stdp_weights = exc_stdp_weights(end,:);
 init_inh_weights = inh_weights(1,:);
 final_inh_weights = inh_weights(end,:);
-path_data = csvread('csvfiles/path.csv');
-try
-    collected_food = csvread('csvfiles/collected_food.csv');
-catch
-    collected_food = [];
-end
-final_grid = csvread('csvfiles/final_grid.csv');
-try
-    output_cell_frequencies = csvread('csvfiles/output_cell_frequencies.csv');
-catch
-    output_cell_frequencies = [];
-end
-
 fprintf('Initial Sum Weight of Excitatory STDP Connections = %.3e\n', sum(init_exc_stdp_weights));
 fprintf('Final Sum Weight of Excitatory STDP Connections = %.3e\n', sum(final_exc_stdp_weights));
 fprintf('Initial Sum Weight of Inhibitory Connections = %.3e\n', sum(init_inh_weights));
 fprintf('Final Sum Weight of Inhibitory Connections = %.3e\n', sum(final_inh_weights));
-
+num_epochs = length(perf);
 
 %% Performance and Diagnostics
+fprintf('Running Performance and Diagnostics...');
 figure;
 subplot(2,2,1);
 plot(1:length(perf),perf);
@@ -58,7 +73,9 @@ subplot(2,2,4);
 plot(1:length(varW),varW);
 title('var');
 
+fprintf('\t ran.\n');
 %% Weights histogram
+fprintf('Running Weights Histogram...');
 figure;
 histogram(init_exc_stdp_weights);
 hold on;
@@ -75,7 +92,9 @@ if std(inh_weights(end,:)) > 1e-10
     legend('Initial','Final');
 end
 
+fprintf('\t ran.\n');
 %% Weights distribution
+fprintf('Running Weights Distribution...');
 figure;
 %h = gobjects(1,length(weights(:,1)));
 binNumber = 100;
@@ -92,7 +111,9 @@ xlabel('Bins');
 ylabel('Epochs');
 zlabel('Number');
 
+fprintf('\t ran.\n');
 %% Plot the occupancy grid and the path
+fprintf('Running Occupancy Grid...');
 map = robotics.BinaryOccupancyGrid(length(final_grid(1,:)),length(final_grid),1);
 occupiedRowsCols = [];
 for row = 1:length(final_grid)
@@ -131,7 +152,9 @@ for i = 2:length(indices)
     plot(path(indices(i-1):(indices(i)-1),1),path(indices(i-1):(indices(i)-1),2), 'r', 'LineWidth', 2);
 end
 
+fprintf('\t ran.\n');
 %% Epochs of food gathering
+fprintf('Running Food Gathering Analysis...');
 cf_index = 1;
 times = zeros(1,length(collected_food(:,1)));
 for i = 1:length(path(:,1))
@@ -151,7 +174,9 @@ title('Times of gathered food')
 xlabel('Epoch');
 ylabel('Number of food gathered');
 
+fprintf('\t ran.\n');
 %% Output cell Frequencies
+fprintf('Running Output Cell Frequency Analysis...');
 if ~isempty(output_cell_frequencies)
     figure;
     hold on;
@@ -163,8 +188,34 @@ xlabel('Epochs');
 ylabel('Frequency (Hz)');
 title('Output Cell Frequencies');
 
+fprintf('\t ran.\n');
+%% Spiking data
+fprintf('Running Spiking Data Analysis...');
+epoch_spike_indices = floor(spkt/300);
+spikes_per_epoch = zeros(1,num_epochs);
+for e = 1:num_epochs
+    spikes_per_epoch(e) = length(spkid(epoch_spike_indices == e & spkid > (max(spkid)-9)));
+end
+fit = polyfit(1:num_epochs,spikes_per_epoch,1);
+yfit = polyval(fit,1:num_epochs);
+figure;
+subplot(1,2,1);
+histogram(spikes_per_epoch);
+title('Spikes/Epoch');
+xlabel('Number of Spikes');
+ylabel('Number of Epochs');
+subplot(1,2,2);
+plot(1:num_epochs, spikes_per_epoch);
+hold on;
+plot(1:num_epochs, yfit, 'LineWidth', 2);
+title('Spikes/Epoch');
+xlabel('Epoch Number');
+ylabel('Number of Spikes');
+
+fprintf('\t ran.\n');
 %% Animation
 if animate
+    fprintf('Running Path Animation...');
     % Animation
     figure;
     show(map);
@@ -180,4 +231,5 @@ if animate
         end
         pause(1/animate_speed);
     end
+    fprintf('\t ran.\n');
 end

@@ -48,12 +48,15 @@ izhiParams['FS'] = {'mod':'Izhi2007b', 'C':0.2, 'k':1.0, 'vr':-55, 'vt':-40, 'vp
 
 # STDP parameters
 # default = {'hebbwt': 0.00001, 'antiwt':-0.00001, 'wmax': 50, 'RLon': 0, 'RLhebbwt': 0.001, 'RLantiwt': -0.000, 'tauhebb': 10, 'RLwindhebb': 50, 'useRLexp': 1, 'softthresh': 0, 'verbose': 0}
+# Note that 6*cfg.epochPeriod is used as foraging paper held traces for 6 epochs
+# Actually 40 ms time constant exponential decay instead
 STDPparams_out = {'hebbwt': 0.0001, 'antiwt':-0.0001, 'wmax': 50, \
 	'STDPon': 0, 'RLon': 1, \
-	'RLhebbwt': 0.001, 'RLantiwt': -0.001, \
+	'RLhebbwt': 0.04, 'RLantiwt': -0.04, \
     'tauhebb': 10, 'tauanti': 10,\
 	'RLwindhebb': 50, 'RLwindanti': 50,\
-	'useRLexp': 0, 'RLlenhebb': 6*cfg.epochPeriod, 'RLlenanti': 6*cfg.epochPeriod, \
+	#'useRLexp': 0, 'RLlenhebb': 6*cfg.epochPeriod, 'RLlenanti': 6*cfg.epochPeriod, \
+	'useRLexp': 1, 'RLlenhebb': 40, 'RLlenanti': 40, \
 	'softthresh': 0, 'verbose': 0}
 
 ## Cell property rules
@@ -120,9 +123,7 @@ netParams.connParams['In->Mid'] = {
     'postConds': {'cellType': 'Mid'},
 	'weight': cfg.input_weight,
 	'connList': connList,
-    #'probability': 'max_prob_const*exp(-prob_dist_factor*dist_3D/probLengthConst)', # probability of connection
     'delay': 'dist_3D/propVelocity',                                        # delay
-    #'threshold': 10,                                                        # threshold
     'synMech': cfg.excitatory_connection_name}#,
 	#'plast': {'mech', 'params': STDPparams_in}}
 # Excitory to middle and output
@@ -133,7 +134,6 @@ netParams.connParams['Mid_E->Out'] = {
 	'probability': 1,
     'delay': 'dist_3D/propVelocity',                                        # delay min=0.2, mean=13.0, var = 1.4
 	'sec': 'soma',
-    #'threshold': 10,                                                        # threshold
     'synMech': cfg.excitatory_connection_name,
 	'plast': {'mech': 'STDP', 'params': STDPparams_out}}
 
@@ -145,7 +145,6 @@ netParams.connParams['Mid_I->Out'] = {
   'probability': 1,
   'delay': 'dist_3D/propVelocity',                                          # transmission delay (ms)
   'sec': 'soma',
-  #'threshold': 10,                                                          # threshold
   'synMech': cfg.inhibitory_connection_name}#,
   #'plast': {'mech': 'STDP', 'params': STDPparams_out}}
 if cfg.uniformInhibitionWeight:
