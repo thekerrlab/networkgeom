@@ -168,11 +168,26 @@ for i = 1:length(path(:,1))
 end
 times = times(times > 0);
 figure;
+subplot(1,2,1);
 %plot(1:length(times),times);
 histogram(times,20);
 title('Times of gathered food')
 xlabel('Epoch');
 ylabel('Number of food gathered');
+
+subplot(1,2,2);
+performance_100 = zeros(1,num_epochs);
+for e = 1:num_epochs
+    performance_100(e) = length(times(times <= e & times > max(0,e-100)))/100;
+end
+fit_gather = polyfit(1:num_epochs,performance_100,1);
+yfit_gather = polyval(fit_gather,1:num_epochs);
+plot(1:num_epochs, performance_100);
+hold on;
+plot(1:num_epochs, yfit_gather, 'LineWidth', 2);
+title('Performance over last 100 Epochs');
+xlabel('Epoch');
+ylabel('Gathering Rate');
 
 fprintf('\t ran.\n');
 %% Output cell Frequencies
@@ -196,8 +211,8 @@ spikes_per_epoch = zeros(1,num_epochs);
 for e = 1:num_epochs
     spikes_per_epoch(e) = length(spkid(epoch_spike_indices == e & spkid > (max(spkid)-9)));
 end
-fit = polyfit(1:num_epochs,spikes_per_epoch,1);
-yfit = polyval(fit,1:num_epochs);
+fit_spike = polyfit(1:num_epochs,spikes_per_epoch,1);
+yfit_spike = polyval(fit_spike,1:num_epochs);
 figure;
 subplot(1,2,1);
 histogram(spikes_per_epoch);
@@ -207,7 +222,7 @@ ylabel('Number of Epochs');
 subplot(1,2,2);
 plot(1:num_epochs, spikes_per_epoch);
 hold on;
-plot(1:num_epochs, yfit, 'LineWidth', 2);
+plot(1:num_epochs, yfit_spike, 'LineWidth', 2);
 title('Spikes/Epoch');
 xlabel('Epoch Number');
 ylabel('Number of Spikes');
