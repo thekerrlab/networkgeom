@@ -52,9 +52,9 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 80000
+cfg.numberOfEpochs = 50
 # Background delay between stims
-cfg.epochPeriod = 100 # ms
+cfg.epochPeriod = 300 # ms
 
 # Number of connections between each input cell and middle layer cell
 cfg.fan_in = 9
