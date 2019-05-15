@@ -3,70 +3,42 @@
 % SSP Neural Net Analysis
 
 clc;
-clear;
 close all;
 
-%% Options
-option_read_files       = true;
+%% Variables From Sim
+epoch_time = 100; % ms
+middle_pop_size = 28^2;
+
+%% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+option_load_mat_file    = false;
+mat_file = 'matfiles/epoch_80000.mat';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
 option_weights_3D       = false;
-option_occup_grid       = false;
+option_occup_grid       = true;
 option_food_gather      = true;
 option_output_freqs     = true;
 option_spiking_data     = true;
+option_weights_heatmap  = true;
 option_animate          = false;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+add_collected_food = false;
 animate_speed = 100; % Animation Frequency
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Read files
-if option_read_files
-    fprintf('READING performances.csv...');
-    perf = csvread('csvfiles/performances.csv');fprintf(' READ.\n');
-    fprintf('READING exc_stdp_weights.csv...');
-    exc_stdp_weights = csvread('csvfiles/exc_out_weights.csv');fprintf(' READ.\n');
-    fprintf('READING inh_weights.csv...');
-    inh_weights = csvread('csvfiles/inh_out_weights.csv');fprintf(' READ.\n');
-    fprintf('READING path.csv...');
-    path_data = csvread('csvfiles/path.csv');fprintf(' READ.\n');
-    try
-        fprintf('READING collected_food.csv...');
-        collected_food = csvread('csvfiles/collected_food.csv');fprintf(' READ.\n');
-    catch
-        collected_food = [];
-    end
-    fprintf('READING final_grid.csv...');
-    final_grid = csvread('csvfiles/final_grid.csv');fprintf(' READ.\n');
-    try
-        fprintf('READING output_cell_frequencies.csv...');
-        output_cell_frequencies = csvread('csvfiles/output_cell_frequencies.csv');fprintf(' READ.\n');
-    catch
-        output_cell_frequencies = [];
-    end
-    fprintf('READING spkid.csv...');
-    spkid = csvread('csvfiles/spkid.csv');fprintf(' READ.\n');
-    spkid = spkid';
-    fprintf('READING spkt.csv...');
-    spkt = csvread('csvfiles/spkt.csv');fprintf(' READ.\n');
-    spkt = spkt';
+if option_load_mat_file
+    fprintf('LOADING %s...', mat_file);
+    load(mat_file);
+    fprintf('\tLOADED\n');
 end
-%% Calculations
-if option_read_files
-    num_epochs = length(perf);
-    fprintf('CALCULATING weight sums, averages and variance...');
-    sumW = sum(exc_stdp_weights, 2);
-    meanW = mean(exc_stdp_weights, 2);
-    varW = var(exc_stdp_weights,0,2);
-    fprintf('\tCALCULATED\n');
+%% Prints
+fprintf('Initial Sum Weight of Excitatory STDP Connections = %.3e\n', sum(init_exc_out_weights));
+fprintf('Final Sum Weight of Excitatory STDP Connections = %.3e\n', sum(final_exc_out_weights));
+fprintf('Initial Sum Weight of Inhibitory Connections = %.3e\n', sum(init_inh_out_weights));
+fprintf('Final Sum Weight of Inhibitory Connections = %.3e\n', sum(final_inh_out_weights));
 
-    init_exc_stdp_weights = exc_stdp_weights(1,:);
-    final_exc_stdp_weights = exc_stdp_weights(end,:);
-    init_inh_weights = inh_weights(1,:);
-    final_inh_weights = inh_weights(end,:);
-    fprintf('Initial Sum Weight of Excitatory STDP Connections = %.3e\n', sum(init_exc_stdp_weights));
-    fprintf('Final Sum Weight of Excitatory STDP Connections = %.3e\n', sum(final_exc_stdp_weights));
-    fprintf('Initial Sum Weight of Inhibitory Connections = %.3e\n', sum(init_inh_weights));
-    fprintf('Final Sum Weight of Inhibitory Connections = %.3e\n', sum(final_inh_weights));
-end
 %% Performance and Diagnostics
 if option_performance
     fprintf('RUNNING Performance and Diagnostics...');
@@ -91,17 +63,17 @@ end
 if option_weights_hist
     fprintf('RUNNING Weights Histogram...');
     figure;
-    histogram(init_exc_stdp_weights);
+    histogram(init_exc_out_weights);
     hold on;
-    histogram(final_exc_stdp_weights);
+    histogram(final_exc_out_weights);
     title('Initial Excitatory STDP Weights Distribution');
     legend('Initial','Final');
 
-    if std(inh_weights(end,:)) > 1e-10
+    if std(inh_out_weights(end,:)) > 1e-10
         figure;
-        histogram(init_inh_weights);
+        histogram(init_inh_out_weights);
         hold on;
-        histogram(final_inh_weights);
+        histogram(final_inh_out_weights);
         title('Initial Inhibitory Weights Distribution');
         legend('Initial','Final');
     end
@@ -114,9 +86,9 @@ if option_weights_3D
     figure;
     %h = gobjects(1,length(weights(:,1)));
     binNumber = 100;
-    bins  = zeros(length(exc_stdp_weights(:,1)),binNumber);
-    for i = 1:length(exc_stdp_weights(:,1))
-        h = histogram(exc_stdp_weights(i,:), binNumber);
+    bins  = zeros(length(exc_out_weights(:,1)),binNumber);
+    for i = 1:length(exc_out_weights(:,1))
+        h = histogram(exc_out_weights(i,:), binNumber);
         bins(i,:) = h.Values;
     end
     bargraph = bar3(bins);
@@ -143,7 +115,7 @@ if option_occup_grid
         end
     end
     % Add in collected food
-    if ~isempty(collected_food)
+    if ~isempty(collected_food) && add_collected_food
         for row = 1:length(collected_food(:,1))
             occupiedRowsCols = [occupiedRowsCols;collected_food(row, 1), collected_food(row, 2)];
         end
@@ -235,7 +207,7 @@ end
 %% Spiking data
 if option_spiking_data
     fprintf('RUNNING Spiking Data Analysis...');
-    epoch_spike_indices = floor(spkt/300);
+    epoch_spike_indices = floor(spkt/epoch_time);
     spikes_per_epoch = zeros(1,num_epochs);
     for e = 1:num_epochs
         spikes_per_epoch(e) = length(spkid(epoch_spike_indices == e & spkid > (max(spkid)-9)));
@@ -258,6 +230,32 @@ if option_spiking_data
 
     fprintf('\tRAN\n');
 end
+%% Synaptic weights heatmap before and after
+if option_weights_heatmap
+    fprintf('RUNNING Synaptic Weight Heatmap...');
+    grid_len = sqrt(middle_pop_size);
+    figure('Position', [0,0,1500,1000]);
+    heatmap_weights_grid = zeros(grid_len,grid_len);
+    for output_cell_num = 1:9
+        subplot(3,3,output_cell_num);
+        for row = 1:grid_len
+            heatmap_weights_grid(row,:) = init_exc_out_weights((1+(row-1)*grid_len):row*grid_len);
+        end
+        heatmap(heatmap_weights_grid, 'Colormap', parula);
+        title(sprintf('Final O%d', output_cell_num));
+    end
+    figure('Position', [0,0,1500,1000]);
+    for output_cell_num = 1:9
+        subplot(3,3,output_cell_num);
+        for row = 1:grid_len
+            heatmap_weights_grid(row,:) = final_exc_out_weights((1+(row-1)*grid_len):row*grid_len);
+        end
+        heatmap(heatmap_weights_grid, 'Colormap', parula);
+        title(sprintf('Final O%d', output_cell_num));
+    end
+    fprintf('\tRAN\n');
+end
+
 %% Animation
 if option_animate
     fprintf('RUNNING Path Animation...');

@@ -52,9 +52,9 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 100
+cfg.numberOfEpochs = 80000
 # Background delay between stims
-cfg.epochPeriod = 300 # ms
+cfg.epochPeriod = 100 # ms
 
 # Number of connections between each input cell and middle layer cell
 cfg.fan_in = 9
@@ -92,17 +92,18 @@ cfg.custom_verbose = False
 #                     'inh': {'sec':'soma', 'loc':0.5, 'synMech':'inh', 'var':'i'},
 #                     }
 cfg.recordStim = True  # record spikes of cell stims
-cfg.recordStep = 0.5 # Step size in ms to save data (eg. V traces, LFP, etc)
+cfg.recordStep = cfg.dt # Step size in ms to save data (eg. V traces, LFP, etc)
 
 # Saving
 cfg.filename = 'networkgeom'  # Set file output name
-cfg.saveFileStep = 1000       # step size in ms to save data to disk
+#cfg.saveFileStep = 1000       # step size in ms to save data to disk
 cfg.savePickle = False        # Whether or not to write spikes etc. to a .mat file
 cfg.saveJson = False          # Whether or not to write spikes etc. to a .mat file
 cfg.saveMat = False           # Whether or not to write spikes etc. to a .mat file
 cfg.saveTxt = False           # save spikes and conn to txt file
 cfg.saveDpk = False           # save to a .dpk pickled file
 
+# Custom saving
 cfg.saveCsvFiles = True
 
 # Analysis and plotting
