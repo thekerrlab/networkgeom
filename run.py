@@ -303,7 +303,9 @@ if cfg.saveMatFile:
         os.mkdir(cfg.mat_file_dir)
     # sio.savemat(cfg.mat_filename, \
     mat4py.savemat(cfg.mat_file_dir + '/' + cfg.mat_filename, \
-        {'perf': sim.performances,\
+        {'epoch_time': float(cfg.epochPeriod),\
+        'middle_pop_size': float(cfg.middle_pop_size),\
+        'perf': sim.performances,\
         'spkid': list(sim.simData['spkid']),\
         'spkt': list(sim.simData['spkt']),\
         'exc_out_weights': sim.excOutWeights,\

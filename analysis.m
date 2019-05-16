@@ -6,25 +6,25 @@ clc;
 close all;
 
 %% Variables From Sim
-epoch_time = 300; % ms
-middle_pop_size = 28^2;
+%epoch_time = 300; % ms
+%middle_pop_size = 28^2;
 
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_load_mat_file    = true;
-mat_file = 'matfiles/test.mat';
+mat_file = 'matfiles/epoch_1000_test.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
-option_weights_3D       = true;
+option_weights_3D       = false;
 option_occup_grid       = true;
 option_food_gather      = true;
 option_output_freqs     = true;
 option_spiking_data     = true;
 option_weights_heatmap  = true;
-option_animate          = true;
+option_animate          = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 add_collected_food = true;
-animate_speed = 1; % Animation Frequency
+animate_speed = 100; % Animation Frequency
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Read files
@@ -45,7 +45,8 @@ if option_load_mat_file
     fprintf('CONVERTING collected_food to matlab indexing and to double...');
     collected_food = double(collected_food) + 1;
     fprintf('\tCONVERTED\n');
-
+    epoch_time = double(epoch_time);
+    middle_pop_size = double(middle_pop_size);
     init_exc_out_weights = exc_out_weights(1,:);
     final_exc_out_weights = exc_out_weights(end,:);
     init_inh_out_weights = inh_out_weights(1,:);
