@@ -38,7 +38,7 @@ cfg.balanceExcitatoryOnly = True        # inhibitatory neurons ignored if True, 
 cfg.apply_leftovers = True              # Apply < 0 weights to next epoch ensuring net input synaptic activity
 ##################################################################
 cfg.outputFrequencyTargeting = True
-cfg.outputCellFrequencyTarget = 1.6     # Hertz (for each output cell)
+cfg.outputCellFrequencyTarget = 1.0     # Hertz (for each output cell)
 cfg.outputCellTargetDelta = 0.0001      # Same as foraging paper
 ##################################################################
 cfg.outputBalancing = True              # Output balancing method (modify STDP reward), assumes all->all conns M->O
@@ -47,7 +47,7 @@ cfg.minimum_output_balance_ratio = 0.5  # If set to 0 it is possible to get /0 e
 cfg.randomMovementChange = 0.01         # set to 0 to turn off
 ##################################################################
 cfg.softThresholding = 1               # 1 for on, 0 for off
-cfg.softThreshold = 5*cfg.middle_exc_weight # Take care that if this is too low, all weights above the threshold are cut
+cfg.softThreshold = 10*cfg.middle_exc_weight # Take care that if this is too low, all weights above the threshold are cut
 ##################################################################
 
 # STDP
@@ -55,7 +55,7 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 5000
+cfg.numberOfEpochs = 100000
 # Background delay between stims
 cfg.epochPeriod = 300 # ms
 
@@ -110,7 +110,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 cfg.saveCsvFiles = False
 cfg.saveMatFile = True
 cfg.mat_file_dir = 'matfiles'
-cfg.mat_filename = 'epoch_5000_tune3_1.mat'
+cfg.mat_filename = 'epoch_100000_1.mat'
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}

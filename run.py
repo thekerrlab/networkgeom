@@ -26,6 +26,11 @@ sim.inhOutWeights = [] # Store inhibitory neuron weights here
 sim.performances = [] # Store post-epoch performance here
 sim.outputFrequencies = [] # Store output cell firing frequencies here
 
+# Choose indices of weights to store as this data is too large. Choose evenly spaced indices
+# including first and last of size ~sqrt(numEpochs)
+weight_indices = numpy.round(numpy.linspace(0, cfg.numberOfEpochs-1, math.ceil(math.sqrt(cfg.numberOfEpochs)))).astype(int)
+weight_counter = 0;
+
 # Initialise Forage environment
 # Create forage object
 forage = Forage(49,49,0.1)
@@ -90,12 +95,14 @@ if cfg.outputBalancing:
             middleCellsInitialOutputWeightSum[middleCellNum] += cell.conns[middleCellNum].weight
 
 # Update function
-epochCounter = 1
+epochCounter = 0
 # t = time in simulation
 def update(t):
     # global variables so that update can see them (alternatively make them part of sim)
     global epochCounter
     global numberOfCells
+    global weight_indices
+    global weight_counter
     global indexOfFirstUnprocessedSpike
     global forageCellList
     global outputCells
@@ -108,8 +115,8 @@ def update(t):
     global excitatoryConnectionsList
     global inhibitoryConnectionsList
     # Update
-    print("\nEPOCH UPDATE ({}, t={} ms)".format(epochCounter,t))
     epochCounter += 1
+    print("\nEPOCH UPDATE ({}, t={} ms)".format(epochCounter,t))
     printProgress(t/cfg.duration)
     # Extract output cell activity to get direction
     spikingCells = sim.simData['spkid']
@@ -245,13 +252,15 @@ def update(t):
         print("\ttotal adjustment to other cells = {:.3e}".format(total_change_to_cells))
 
     # store weight changes to analyse later
-    sim.excOutWeights.append([])
-    sim.inhOutWeights.append([])
-    for cellNum in range(numberOfCells-cfg.output_pop_size, numberOfCells):
-        for conn in excitatoryConnectionsList[cellNum]:
-            sim.excOutWeights[-1].append(float(conn['hObj'].weight[0]))
-        for conn in inhibitoryConnectionsList[cellNum]:
-            sim.inhOutWeights[-1].append(float(conn['hObj'].weight[0]))
+    if epochCounter == weight_indices[weight_counter] + 1:
+        weight_counter += 1
+        sim.excOutWeights.append([])
+        sim.inhOutWeights.append([])
+        for cellNum in range(numberOfCells-cfg.output_pop_size, numberOfCells):
+            for conn in excitatoryConnectionsList[cellNum]:
+                sim.excOutWeights[-1].append(float(conn['hObj'].weight[0]))
+            for conn in inhibitoryConnectionsList[cellNum]:
+                sim.inhOutWeights[-1].append(float(conn['hObj'].weight[0]))
 
     # Send a new burst for new cells
     forageCellList = forage.getVisibleAreaSubGridList(cfg.visibleSize,cfg.visibleSize)
@@ -307,11 +316,13 @@ if cfg.saveMatFile:
         'middle_pop_size': float(cfg.middle_pop_size),\
         'config_exc_weight': float(cfg.middle_exc_weight),\
         'config_inh_weight': float(cfg.middle_inh_weight),\
+        'num_random_movements': numberOfRandomMovementsCounter,\
         'perf': sim.performances,\
         'spkid': list(sim.simData['spkid']),\
         'spkt': list(sim.simData['spkt']),\
         'exc_out_weights': sim.excOutWeights,\
         'inh_out_weights': sim.inhOutWeights,\
+        'weight_indices': weight_indices.tolist(),\
         'output_cell_frequencies': sim.outputFrequencies,\
         'path': forage.getPathList(),\
         'collected_food': forage.getCollectedFood(),\
