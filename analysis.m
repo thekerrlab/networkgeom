@@ -5,13 +5,9 @@
 clc;
 close all;
 
-%% Variables From Sim
-%epoch_time = 300; % ms
-%middle_pop_size = 28^2;
-
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_load_mat_file    = true;
-mat_file = 'matfiles/epoch_1000_test.mat';
+mat_file = 'matfiles/epoch_1000_tune_3.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
