@@ -50,14 +50,18 @@ izhiParams['FS'] = {'mod':'Izhi2007b', 'C':0.2, 'k':1.0, 'vr':-55, 'vt':-40, 'vp
 # default = {'hebbwt': 0.00001, 'antiwt':-0.00001, 'wmax': 50, 'RLon': 0, 'RLhebbwt': 0.001, 'RLantiwt': -0.000, 'tauhebb': 10, 'RLwindhebb': 50, 'useRLexp': 1, 'softthresh': 0, 'verbose': 0}
 # Note that 6*cfg.epochPeriod is used as foraging paper held traces for 6 epochs
 # Actually 40 ms time constant exponential decay instead
-STDPparams_out = {'hebbwt': 0.0001, 'antiwt':-0.0001, 'wmax': 50, \
+if cfg.softThresholding == 1:
+	wmax = cfg.softThreshold
+else:
+	wmax = 50 # arbitrarily large
+STDPparams_out = {'hebbwt': 0.0001, 'antiwt':-0.0001, 'wmax': wmax, \
 	'STDPon': 0, 'RLon': 1, \
 	'RLhebbwt': 0.04, 'RLantiwt': -0.04, \
     'tauhebb': 10, 'tauanti': 10,\
 	'RLwindhebb': 50, 'RLwindanti': 50,\
 	#'useRLexp': 0, 'RLlenhebb': 6*cfg.epochPeriod, 'RLlenanti': 6*cfg.epochPeriod, \
 	'useRLexp': 1, 'RLlenhebb': 40, 'RLlenanti': 40, \
-	'softthresh': 0, 'verbose': 0}
+	'softthresh': cfg.softThresholding, 'verbose': 0}
 
 ## Cell property rules
 # Input cells (Izhi)
