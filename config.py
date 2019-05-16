@@ -52,9 +52,9 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 80000
+cfg.numberOfEpochs = 100
 # Background delay between stims
-cfg.epochPeriod = 100 # ms
+cfg.epochPeriod = 300 # ms
 
 # Number of connections between each input cell and middle layer cell
 cfg.fan_in = 9
@@ -104,7 +104,10 @@ cfg.saveTxt = False           # save spikes and conn to txt file
 cfg.saveDpk = False           # save to a .dpk pickled file
 
 # Custom saving
-cfg.saveCsvFiles = True
+cfg.saveCsvFiles = False
+cfg.saveMatFile = True
+cfg.mat_file_dir = 'matfiles'
+cfg.mat_filename = 'test.mat'
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}

@@ -6,25 +6,25 @@ clc;
 close all;
 
 %% Variables From Sim
-epoch_time = 100; % ms
+epoch_time = 300; % ms
 middle_pop_size = 28^2;
 
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-option_load_mat_file    = false;
-mat_file = 'matfiles/epoch_80000.mat';
+option_load_mat_file    = true;
+mat_file = 'matfiles/test.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
-option_weights_3D       = false;
+option_weights_3D       = true;
 option_occup_grid       = true;
 option_food_gather      = true;
 option_output_freqs     = true;
 option_spiking_data     = true;
 option_weights_heatmap  = true;
-option_animate          = false;
+option_animate          = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-add_collected_food = false;
-animate_speed = 100; % Animation Frequency
+add_collected_food = true;
+animate_speed = 1; % Animation Frequency
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Read files
@@ -32,6 +32,24 @@ if option_load_mat_file
     fprintf('LOADING %s...', mat_file);
     load(mat_file);
     fprintf('\tLOADED\n');
+    num_epochs = length(perf);
+    fprintf('CALCULATING weight sums, averages and variance...');
+    sumW = sum(exc_out_weights, 2);
+    meanW = mean(exc_out_weights, 2);
+    varW = var(exc_out_weights,0,2);
+    fprintf('\tCALCULATED\n');
+    
+    fprintf('CONVERTING path to matlab indexing and to double...');
+    path = double(path) + 1;
+    fprintf('\tCONVERTED\n');
+    fprintf('CONVERTING collected_food to matlab indexing and to double...');
+    collected_food = double(collected_food) + 1;
+    fprintf('\tCONVERTED\n');
+
+    init_exc_out_weights = exc_out_weights(1,:);
+    final_exc_out_weights = exc_out_weights(end,:);
+    init_inh_out_weights = inh_out_weights(1,:);
+    final_inh_out_weights = inh_out_weights(end,:);
 end
 %% Prints
 fprintf('Initial Sum Weight of Excitatory STDP Connections = %.3e\n', sum(init_exc_out_weights));
@@ -102,7 +120,7 @@ if option_weights_3D
     fprintf('\tRAN\n');
 end
 %% Plot the occupancy grid and the path
-path = path_data + 0.5;
+path_data = path - 0.5;
 if option_occup_grid
     fprintf('RUNNING Occupancy Grid...');
     map = robotics.BinaryOccupancyGrid(length(final_grid(1,:)),length(final_grid),1);
@@ -123,12 +141,12 @@ if option_occup_grid
     setOccupancy(map, occupiedRowsCols, 1);
     % Plot the path, first adjusting for matlab's indexing, then +0.5 for
     % location in grid
-    path = path_data + 0.5;
+    %path_data = path_data + 0.5;
     % Find indices where we cross a grid border
     indices = [];
     for idx = 2:length(path)
-        if ((path(idx,1) + path(idx-1,1) == length(final_grid)) && path(idx,1) ~= path(idx-1,1))  ...
-                       || ((path(idx,2) + path(idx-1,2) == length(final_grid(1,:))) && path(idx,2) ~= path(idx-1,2))
+        if ((path_data(idx,1) + path_data(idx-1,1) == length(final_grid)) && path_data(idx,1) ~= path_data(idx-1,1))  ...
+                       || ((path_data(idx,2) + path_data(idx-1,2) == length(final_grid(1,:))) && path_data(idx,2) ~= path_data(idx-1,2))
             indices = [indices,idx];
         end
     end
@@ -138,9 +156,9 @@ if option_occup_grid
     set(gca, 'YDir', 'reverse');
     grid minor;
     hold on;
-    plot(path(1:(indices(1)-1),1),path(1:(indices(1)-1),2), 'r', 'LineWidth', 2);
+    plot(path_data(1:(indices(1)-1),1),path_data(1:(indices(1)-1),2), 'r', 'LineWidth', 2);
     for i = 2:length(indices)
-        plot(path(indices(i-1):(indices(i)-1),1),path(indices(i-1):(indices(i)-1),2), 'r', 'LineWidth', 2);
+        plot(path_data(indices(i-1):(indices(i)-1),1),path_data(indices(i-1):(indices(i)-1),2), 'r', 'LineWidth', 2);
     end
 
     fprintf('\tRAN\n');
@@ -152,7 +170,7 @@ if option_food_gather
         cf_index = 1;
         times = zeros(1,length(collected_food(:,1)));
         for i = 1:length(path(:,1))
-            if (path(i,:)-0.5) == collected_food(cf_index,:)
+            if (path(i,:)) == collected_food(cf_index,:)
                 times(cf_index) = i;
                 cf_index = cf_index + 1;
                 if cf_index >= length(collected_food(:,1))
@@ -242,7 +260,7 @@ if option_weights_heatmap
             heatmap_weights_grid(row,:) = init_exc_out_weights((1+(row-1)*grid_len):row*grid_len);
         end
         heatmap(heatmap_weights_grid, 'Colormap', parula);
-        title(sprintf('Final O%d', output_cell_num));
+        title(sprintf('Initial O%d', output_cell_num));
     end
     figure('Position', [0,0,1500,1000]);
     for output_cell_num = 1:9
@@ -257,18 +275,18 @@ if option_weights_heatmap
 end
 
 %% Animation
-if option_animate
+if option_animate && option_occup_grid
     fprintf('RUNNING Path Animation...');
     % Animation
     figure;
     show(map);
-    grid on;
+    grid minor;
     set(gca, 'YDir', 'reverse');
     hold on;
     index = 1;
-    for i = 2:length(path)
+    for i = 2:length(path_data)
         if i ~= indices(index)
-            plot(path(i-1:i, 1),path(i-1:i, 2), 'r', 'LineWidth', 2);
+            plot(path_data(i-1:i, 1),path_data(i-1:i, 2), 'r', 'LineWidth', 2);
         else
             index = index + 1;
         end

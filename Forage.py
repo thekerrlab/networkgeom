@@ -234,6 +234,15 @@ class Forage:
     def getGatheringRate(self):
         return self.foodCollected/self.movesTaken
 
+    def getPathList(self):
+        return self.path
+
+    def getCollectedFood(self):
+        return self.collectedFoodLocations
+
+    def getFinalGrid(self):
+        return self.occupancyGrid
+
     def writePathToCSV(self, path_filename, collected_food_filename, final_grid_filename):
         # Path
         try:

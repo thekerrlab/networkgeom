@@ -4,6 +4,8 @@ from utility import *
 import random
 import statistics
 import numpy
+import mat4py
+import os
 
 '''
 netParams is a dict containing a set of network parameters using a standardized structure
@@ -292,6 +294,24 @@ sim.runSimWithIntervalFunc(sim.updateInterval, update)   # run parallel Neuron s
 sim.gatherData()                                                # gather spiking data and cell info from each node
 sim.saveData()                                                  # save params, cell info and sim output to file (pickle,mat,txt,etc)
 sim.analysis.plotData()                                         # plot spike raster
+
+if cfg.saveMatFile:
+    # Make the directory
+    try:
+        os.stat(cfg.mat_file_dir)
+    except:
+        os.mkdir(cfg.mat_file_dir)
+    # sio.savemat(cfg.mat_filename, \
+    mat4py.savemat(cfg.mat_file_dir + '/' + cfg.mat_filename, \
+        {'perf': sim.performances,\
+        'spkid': list(sim.simData['spkid']),\
+        'spkt': list(sim.simData['spkt']),\
+        'exc_out_weights': sim.excOutWeights,\
+        'inh_out_weights': sim.inhOutWeights,\
+        'output_cell_frequencies': sim.outputFrequencies,\
+        'path': forage.getPathList(),\
+        'collected_food': forage.getCollectedFood(),\
+        'final_grid': forage.getFinalGrid()})
 
 if cfg.saveCsvFiles:
     saveMatrixInFile(sim.performances, 'csvfiles/performances.csv', 0)
