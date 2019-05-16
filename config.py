@@ -25,9 +25,9 @@ cfg.output_pop_size = 9
 cfg.backgroundStimWeight = 0.01      # stimulation weight of the background input
 cfg.input_weight = 0.01              # Weight of input to middle connections
 cfg.middle_exc_weight = 0.00075        # Weight of excitory connections
-cfg.middle_inh_weight = 2.2*cfg.middle_exc_weight  # Weight of inhibitory connections
-cfg.middle_exc_weight_var = 0.01*cfg.middle_exc_weight
-cfg.middle_inh_weight_var = 0.01*cfg.middle_inh_weight
+cfg.middle_inh_weight = 1.8*cfg.middle_exc_weight  # Weight of inhibitory connections
+cfg.middle_exc_weight_var = 0.005*cfg.middle_exc_weight
+cfg.middle_inh_weight_var = 0.005*cfg.middle_inh_weight
 
 #### Configuration options
 ##################################################################
@@ -47,7 +47,7 @@ cfg.minimum_output_balance_ratio = 0.5  # If set to 0 it is possible to get /0 e
 cfg.randomMovementChange = 0.01         # set to 0 to turn off
 ##################################################################
 cfg.softThresholding = 1               # 1 for on, 0 for off
-cfg.softThreshold = cfg.middle_exc_weight
+cfg.softThreshold = 5*cfg.middle_exc_weight # Take care that if this is too low, all weights above the threshold are cut
 ##################################################################
 
 # STDP
@@ -55,7 +55,7 @@ cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
 
 # Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 1000
+cfg.numberOfEpochs = 5000
 # Background delay between stims
 cfg.epochPeriod = 300 # ms
 
@@ -110,7 +110,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 cfg.saveCsvFiles = False
 cfg.saveMatFile = True
 cfg.mat_file_dir = 'matfiles'
-cfg.mat_filename = 'epoch_1000_test.mat'
+cfg.mat_filename = 'epoch_5000_tune3_1.mat'
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
