@@ -237,7 +237,7 @@ def update(t):
             # Calculate scale factor and set next outputCellExcSynapseInput
             scaleFactor = outputCellTargetExcSynapseInput[cellNum]/outputCellExcSynapseInput[cellNum]
             outputCellExcSynapseInput[cellNum] *= scaleFactor
-            for conn in excitatoryConnectionsList[cellNum]:
+            for conn in excitatoryConnectionsList[cellNum+numberOfCells-cfg.output_pop_size]:
                 # Only change the excitatory connections
                 conn['hObj'].weight[0] *= scaleFactor
     if cfg.custom_verbose and cfg.inputSynapseBalance:
@@ -303,7 +303,11 @@ if cfg.saveMatFile:
         os.mkdir(cfg.mat_file_dir)
     # sio.savemat(cfg.mat_filename, \
     mat4py.savemat(cfg.mat_file_dir + '/' + cfg.mat_filename, \
-        {'perf': sim.performances,\
+        {'epoch_time': float(cfg.epochPeriod),\
+        'middle_pop_size': float(cfg.middle_pop_size),\
+        'config_exc_weight': float(cfg.middle_exc_weight),\
+        'config_inh_weight': float(cfg.middle_inh_weight),\
+        'perf': sim.performances,\
         'spkid': list(sim.simData['spkid']),\
         'spkt': list(sim.simData['spkt']),\
         'exc_out_weights': sim.excOutWeights,\
