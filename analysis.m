@@ -7,11 +7,11 @@ close all;
 
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_load_mat_file    = true;
-mat_file = 'matfiles/epoch_1000_tune_3.mat';
+mat_file = 'matfiles/epoch_250000_16_1.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
-option_weights_3D       = false;
+option_weights_3D       = true;
 option_occup_grid       = true;
 option_food_gather      = true;
 option_output_freqs     = true;
@@ -99,14 +99,13 @@ end
 if option_weights_3D
     fprintf('RUNNING Weights Distribution...');
     figure;
-    %h = gobjects(1,length(weights(:,1)));
-    binNumber = 100;
+    binNumber = length(exc_out_weights(:,1));
     bins  = zeros(length(exc_out_weights(:,1)),binNumber);
     for i = 1:length(exc_out_weights(:,1))
         h = histogram(exc_out_weights(i,:), binNumber);
         bins(i,:) = h.Values;
     end
-    bargraph = bar3(bins);
+    bargraph = bar3(double(weight_indices),bins);
     for b = bargraph
         set(b, 'EdgeAlpha', 0);
     end
@@ -179,15 +178,14 @@ if option_food_gather
     else
         times = [];
     end
-    figure;
-    subplot(1,2,1);
-    %plot(1:length(times),times);
+    figure('Position',[0,0,1800,600]);
+    subplot(1,3,1);
     histogram(times,20);
     title('Times of gathered food')
     xlabel('Epoch');
     ylabel('Number of food gathered');
 
-    subplot(1,2,2);
+    subplot(1,3,2);
     performance_100 = zeros(1,num_epochs);
     for e = 1:num_epochs
         performance_100(e) = length(times(times <= e & times > max(0,e-100)))/100;
@@ -197,9 +195,27 @@ if option_food_gather
     plot(1:num_epochs, performance_100);
     hold on;
     plot(1:num_epochs, yfit_gather, 'LineWidth', 2);
+    plot(1:num_epochs, movmean(perf,100), 'LineWidth', 2);
     title('Performance over last 100 Epochs');
     xlabel('Epoch');
     ylabel('Gathering Rate');
+    legend('raw', 'last 100', 'moving average');
+    
+    subplot(1,3,3);
+    performance_1000 = zeros(1,num_epochs);
+    for e = 1:num_epochs
+        performance_1000(e) = length(times(times <= e & times > max(0,e-1000)))/1000;
+    end
+    fit_gather = polyfit(1:num_epochs,performance_1000,1);
+    yfit_gather = polyval(fit_gather,1:num_epochs);
+    plot(1:num_epochs, performance_1000);
+    hold on;
+    plot(1:num_epochs, yfit_gather, 'LineWidth', 2);
+    plot(1:num_epochs, movmean(perf,1000), 'LineWidth', 2);
+    title('Performance over last 1000 Epochs');
+    xlabel('Epoch');
+    ylabel('Gathering Rate');
+    legend('raw', 'last 100', 'moving average');
 
     fprintf('\tRAN\n');
 end
@@ -222,10 +238,14 @@ end
 %% Spiking data
 if option_spiking_data
     fprintf('RUNNING Spiking Data Analysis...');
-    epoch_spike_indices = floor(spkt/epoch_time);
+    % Filter for output spikes
+    first_out_cell_index = (49+middle_pop_size);
+    spk_output_indices = spkid >= first_out_cell_index;
+    spkt_out = spkt(spk_output_indices);
+    epoch_spike_indices = floor(spkt_out/epoch_time);
     spikes_per_epoch = zeros(1,num_epochs);
-    for e = 1:num_epochs
-        spikes_per_epoch(e) = length(spkid(epoch_spike_indices == e & spkid > (max(spkid)-9)));
+    for spike_epoch = epoch_spike_indices
+        spikes_per_epoch(spike_epoch) = spikes_per_epoch(spike_epoch) + 1;
     end
     fit_spike = polyfit(1:num_epochs,spikes_per_epoch,1);
     yfit_spike = polyval(fit_spike,1:num_epochs);
@@ -254,7 +274,7 @@ if option_weights_heatmap
     for output_cell_num = 1:9
         subplot(3,3,output_cell_num);
         for row = 1:grid_len
-            heatmap_weights_grid(row,:) = init_exc_out_weights((1+(row-1)*grid_len):row*grid_len);
+            heatmap_weights_grid(row,:) = init_exc_out_weights((1+(row-1)*grid_len + (output_cell_num-1)*middle_pop_size):(row*grid_len + (output_cell_num-1)*middle_pop_size));
         end
         heatmap(heatmap_weights_grid, 'Colormap', parula);
         title(sprintf('Initial O%d', output_cell_num));
@@ -263,7 +283,7 @@ if option_weights_heatmap
     for output_cell_num = 1:9
         subplot(3,3,output_cell_num);
         for row = 1:grid_len
-            heatmap_weights_grid(row,:) = final_exc_out_weights((1+(row-1)*grid_len):row*grid_len);
+            heatmap_weights_grid(row,:) = final_exc_out_weights((1+(row-1)*grid_len + (output_cell_num-1)*middle_pop_size):(row*grid_len + (output_cell_num-1)*middle_pop_size));
         end
         heatmap(heatmap_weights_grid, 'Colormap', parula);
         title(sprintf('Final O%d', output_cell_num));
