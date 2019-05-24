@@ -2144,6 +2144,14 @@
     <bcf:citekey order="21">gerstner2014neuronal</bcf:citekey>
     <bcf:citekey order="22">sanda2017multi</bcf:citekey>
     <bcf:citekey order="23">sanda2017multi</bcf:citekey>
+    <bcf:citekey order="24">izhikevich2007dynamical</bcf:citekey>
+    <bcf:citekey order="25">izhikevich2008large</bcf:citekey>
+    <bcf:citekey order="26">neymotin2013reinforcement</bcf:citekey>
+    <bcf:citekey order="27">chadderdon2012reinforcement</bcf:citekey>
+    <bcf:citekey order="28">sanda2017multi</bcf:citekey>
+    <bcf:citekey order="29">sanda2017multi</bcf:citekey>
+    <bcf:citekey order="30">skorheim2014spiking</bcf:citekey>
+    <bcf:citekey order="31">sanda2017multi</bcf:citekey>
   </bcf:section>
   <bcf:sortlist section="0" name="none/global/" type="entry" sortscheme="none" sortnamekeyscheme="global" labelprefix="">
   <bcf:sorting>

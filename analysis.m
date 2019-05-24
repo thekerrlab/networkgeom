@@ -7,7 +7,7 @@ close all;
 
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_load_mat_file    = true;
-mat_file = 'matfiles/epoch_250000_16_1.mat';
+mat_file = 'matfiles/last_week/epoch_30000_fri24may.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
