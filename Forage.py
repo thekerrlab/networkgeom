@@ -17,6 +17,7 @@ class Forage:
         self.spriteLocation = spriteLocation()
         self.path = []
         self.collectedFoodLocations = []
+        self.randomlyPlacedFoodLocations = []
         self.createField()
         print("Forage object created of size " + str(width) + "x" + str(height)\
             + " of density " + str(density))
@@ -118,6 +119,7 @@ class Forage:
                 y = (y+1) % self.height
             counter += 1
         self.setOccupancyGridLoc(x, y, 1)
+        self.randomlyPlacedFoodLocations.append([x,y])
 
     # Simple setter function for occupancy grid
     def setOccupancyGridLoc(self, x, y, value):
@@ -240,8 +242,11 @@ class Forage:
     def getCollectedFood(self):
         return self.collectedFoodLocations
 
-    def getFinalGrid(self):
-        return self.occupancyGrid
+    def getRandomlyPlacedFoodLocations(self):
+        return self.randomlyPlacedFoodLocations
+
+    def getCurrentGrid(self):
+        return [row[:] for row in self.occupancyGrid]
 
     def writePathToCSV(self, path_filename, collected_food_filename, final_grid_filename):
         # Path

@@ -14,6 +14,9 @@ cfg.output_vert_loc = 200           # Y - the vertical dimension
 # Visibility Area around sprite
 cfg.visibleSize = 7 # square area of this width and height
 
+# food density
+cfg.food_density = 0.1
+
 # Size of populations
 cfg.input_pop_size = cfg.visibleSize*cfg.visibleSize
 cfg.middle_pop_size = 28*28
@@ -24,12 +27,28 @@ cfg.output_pop_size = 9
 # Connection and stimulation weights
 cfg.backgroundStimWeight = 0.01      # stimulation weight of the background input
 cfg.input_weight = 0.01              # Weight of input to middle connections
-cfg.middle_exc_weight = 0.00075        # Weight of excitory connections
-cfg.middle_inh_weight = 1.8*cfg.middle_exc_weight  # Weight of inhibitory connections
+cfg.middle_exc_weight = 0.0008        # Weight of excitory connections
+cfg.middle_inh_weight = 1.7*cfg.middle_exc_weight  # Weight of inhibitory connections
 cfg.middle_exc_weight_var = 0.005*cfg.middle_exc_weight
 cfg.middle_inh_weight_var = 0.005*cfg.middle_inh_weight
 
+# Custom saving
+cfg.saveCsvFiles = False
+cfg.saveMatFile = True
+cfg.mat_file_dir = 'matfiles'
+cfg.mat_filename = 'last_ditch_v4_80000_1.mat'
+
+# Number of stimulations (equates to number of moves in the simulation)
+cfg.numberOfEpochs = 80000
+# Background delay between stims
+cfg.epochPeriod = 300 # ms
+
 #### Configuration options
+##################################################################
+cfg.learning_on = 1                     # 1 for reinforcement learning on, 0 otherwise
+cfg.run_with_input_weights = True       # Run with preset weights
+cfg.index_of_preset_weight = -1     # index in the file, -1 for last set of weights
+cfg.preset_weights_filename = 'sent/epoch_500000_huge_1.mat'
 ##################################################################
 cfg.uniformInhibitionWeight = True      # If true, all inhibitory connections are equally weighted
 ##################################################################
@@ -38,7 +57,7 @@ cfg.balanceExcitatoryOnly = True        # inhibitatory neurons ignored if True, 
 cfg.apply_leftovers = True              # Apply < 0 weights to next epoch ensuring net input synaptic activity
 ##################################################################
 cfg.outputFrequencyTargeting = True
-cfg.outputCellFrequencyTarget = 1.0     # Hertz (for each output cell)
+cfg.outputCellFrequencyTarget = 6.0     # Hertz (for each output cell)
 cfg.outputCellTargetDelta = 0.0001      # Same as foraging paper
 ##################################################################
 cfg.outputBalancing = True              # Output balancing method (modify STDP reward), assumes all->all conns M->O
@@ -47,17 +66,23 @@ cfg.minimum_output_balance_ratio = 0.5  # If set to 0 it is possible to get /0 e
 cfg.randomMovementChange = 0.01         # set to 0 to turn off
 ##################################################################
 cfg.softThresholding = 1               # 1 for on, 0 for off
-cfg.softThreshold = 10*cfg.middle_exc_weight # Take care that if this is too low, all weights above the threshold are cut
+cfg.softThreshold = 30*cfg.middle_exc_weight # Take care that if this is too low, all weights above the threshold are cut
 ##################################################################
+
+# Force configuration parameters
+if cfg.inputSynapseBalance == False:
+    if cfg.balanceExcitatoryOnly:
+        print("balanceExcitatoryOnly option forced false by inputSynapseBalance")
+        cfg.balanceExcitatoryOnly = False
+    if cfg.apply_leftovers:
+        print("apply_leftovers option forced false by inputSynapseBalance")
+        cfg.apply_leftovers = False
+
+cfg.additional_plotting = True
 
 # STDP
 cfg.stdp_reward = 1
 cfg.stdp_punish = -0.1
-
-# Number of stimulations (equates to number of moves in the simulation)
-cfg.numberOfEpochs = 100000
-# Background delay between stims
-cfg.epochPeriod = 300 # ms
 
 # Number of connections between each input cell and middle layer cell
 cfg.fan_in = 9
@@ -106,15 +131,10 @@ cfg.saveMat = False           # Whether or not to write spikes etc. to a .mat fi
 cfg.saveTxt = False           # save spikes and conn to txt file
 cfg.saveDpk = False           # save to a .dpk pickled file
 
-# Custom saving
-cfg.saveCsvFiles = False
-cfg.saveMatFile = True
-cfg.mat_file_dir = 'matfiles'
-cfg.mat_filename = 'epoch_100000_1.mat'
-
 # Analysis and plotting
-cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
-# cfg.analysis['plotTraces'] = {'include': cfg.recordCells} # plot recorded traces for this list of cells
-# cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'Input', 'Middle', 'Output'], 'smooth': 10}
-# cfg.analysis['plot2Dnet'] = True
-# cfg.analysis['plotConn'] = True
+if cfg.additional_plotting:
+    cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
+    # cfg.analysis['plotTraces'] = {'include': cfg.recordCells} # plot recorded traces for this list of cells
+    cfg.analysis['plotRatePSD'] =  {'include': ['allCells', 'Input', 'Middle', 'Output'], 'smooth': 10}
+    cfg.analysis['plot2Dnet'] = True
+    cfg.analysis['plotConn'] = True
