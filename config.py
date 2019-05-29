@@ -110,7 +110,7 @@ cfg.saveDpk = False           # save to a .dpk pickled file
 cfg.saveCsvFiles = False
 cfg.saveMatFile = True
 cfg.mat_file_dir = 'matfiles'
-cfg.mat_filename = 'epoch_100000_1.mat'
+cfg.mat_filename = 'epoch_coretest_1.mat'
 
 # Analysis and plotting
 cfg.analysis['plotRaster'] = {'orderBy': 'y', 'orderInverse': True, 'syncLines': False}
