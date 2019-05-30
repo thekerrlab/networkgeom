@@ -7,19 +7,19 @@ close all;
 
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_load_mat_file    = true;
-mat_file = 'matfiles/last_ditch_30000_1.mat';
+mat_file = 'matfiles/last_ditch/last_ditch_v1_80000_1.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 option_performance      = true;
 option_weights_hist     = true;
 option_weights_3D       = true;
-option_occup_grid       = false;
+option_occup_grid       = true;
 option_food_gather      = true;
 option_output_freqs     = true;
 option_spiking_data     = true;
 option_weights_heatmap  = true;
 option_animate          = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-add_collected_food = true;
+add_collected_food = false;
 animate_speed = 100; % Animation Frequency
 make_video = false;
 video_name = 'videos/random_movement.avi';
@@ -40,10 +40,6 @@ if option_load_mat_file
     
     fprintf('CONVERTING path to matlab indexing and to double...');
     path = double(path) + 1;
-    fprintf('\tCONVERTED\n');
-    fprintf('CONVERTING collected_food abd add_food to matlab indexing and to double...');
-    collected_food = double(collected_food) + 1;
-    added_food = double(added_food) + 1;
     fprintf('\tCONVERTED\n');
     epoch_time = double(epoch_time);
     middle_pop_size = double(middle_pop_size);
@@ -127,47 +123,47 @@ end
 %% Epochs of food gathering
 if option_food_gather
     fprintf('RUNNING Food Gathering Analysis...');
-%     if ~isempty(collected_food)
-%         cf_index = 1;
-%         times = zeros(1,length(collected_food(:,1)));
-%         for i = 1:length(path(:,1))
-%             if (path(i,:)) == collected_food(cf_index,:)
-%                 times(cf_index) = i;
-%                 cf_index = cf_index + 1;
-%                 if cf_index >= length(collected_food(:,1))
-%                     break;
-%                 end
-%             end
-%         end
-%         times = times(times > 0);
-%     else
-%         times = [];
-%     end
+    if ~isempty(collected_food)
+        cf_index = 1;
+        times = zeros(1,length(collected_food(:,1)));
+        for i = 1:length(path(:,1))
+            if (path(i,:)) == collected_food(cf_index,:)
+                times(cf_index) = i;
+                cf_index = cf_index + 1;
+                if cf_index >= length(collected_food(:,1))
+                    break;
+                end
+            end
+        end
+        times = times(times > 0);
+    else
+        times = [];
+    end
     figure('Position',[0,0,1800,600]);
-% %     subplot(1,3,1);
+    subplot(1,3,1);
 %     subplot(1,2,1);
-%     histogram(times,20);
-%     title('Times of gathered food')
-%     xlabel('Epoch');
-%     ylabel('Number of food gathered');
+    histogram(times,20);
+    title('Times of gathered food')
+    xlabel('Epoch');
+    ylabel('Number of food gathered');
 
-%     subplot(1,3,2);
-%     performance_1000 = zeros(1,num_epochs);
-%     for e = 1:num_epochs
-%         performance_1000(e) = length(times(times <= e & times > max(0,e-1000)))/1000;
-%     end
-%     fit_gather = polyfit(1:num_epochs,performance_1000,1);
-%     yfit_gather = polyval(fit_gather,1:num_epochs);
-%     plot(1:num_epochs, performance_1000);
-%     hold on;
-%     plot(1:num_epochs, yfit_gather, 'LineWidth', 2);
-%     plot(1:num_epochs, movmean(performance_1000,1000), 'LineWidth', 2);
-%     title('Performance averaged over 1000 Epochs');
-%     xlabel('Epoch');
-%     ylabel('Gathering Rate');
-%     legend('raw', 'last 100', 'moving average');
+    subplot(1,3,2);
+    performance_1000 = zeros(1,num_epochs);
+    for e = 1:num_epochs
+        performance_1000(e) = length(times(times <= e & times > max(0,e-1000)))/1000;
+    end
+    fit_gather = polyfit(1:num_epochs,performance_1000,1);
+    yfit_gather = polyval(fit_gather,1:num_epochs);
+    plot(1:num_epochs, performance_1000);
+    hold on;
+    plot(1:num_epochs, yfit_gather, 'LineWidth', 2);
+    plot(1:num_epochs, movmean(performance_1000,1000), 'LineWidth', 2);
+    title('Performance averaged over 1000 Epochs');
+    xlabel('Epoch');
+    ylabel('Gathering Rate');
+    legend('raw', 'last 100', 'moving average');
     
-%     subplot(1,3,3);
+    subplot(1,3,3);
 %     subplot(1,2,2);
     timespan = floor(num_epochs/10);
     performance_timespan = zeros(1,num_epochs);
@@ -263,6 +259,10 @@ end
 %% Plot the occupancy grid and the path
 path_data = path - 0.5;
 if option_occup_grid
+    fprintf('CONVERTING collected_food abd add_food to matlab indexing and to double...');
+    collected_food = double(collected_food) + 1;
+    added_food = double(added_food) + 1;
+    fprintf('\tCONVERTED\n');
     fprintf('RUNNING Occupancy Grid...');
     map = robotics.BinaryOccupancyGrid(length(final_grid(1,:)),length(final_grid),1);
     occupiedRowsCols = [];
