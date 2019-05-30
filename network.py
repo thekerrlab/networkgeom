@@ -55,7 +55,7 @@ if cfg.softThresholding == 1:
 else:
 	wmax = 50 # arbitrarily large
 STDPparams_out = {'hebbwt': 0.0001, 'antiwt':-0.0001, 'wmax': wmax, \
-	'STDPon': 0, 'RLon': 1, \
+	'STDPon': 0, 'RLon': cfg.learning_on, \
 	'RLhebbwt': 0.04, 'RLantiwt': -0.04, \
     'tauhebb': 10, 'tauanti': 10,\
 	'RLwindhebb': 50, 'RLwindanti': 50,\

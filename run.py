@@ -33,7 +33,8 @@ weight_counter = 0;
 
 # Initialise Forage environment
 # Create forage object
-forage = Forage(49,49,0.1)
+forage = Forage(49,49,cfg.food_density)
+initial_grid = forage.getCurrentGrid() # save initial grid
 forage.printField()
 # Get the occupied cells from the forage instance (already in scope)
 forageCellList = forage.getVisibleAreaSubGridList(cfg.visibleSize,cfg.visibleSize)
@@ -56,10 +57,36 @@ indexOfFirstUnprocessedSpike = 0
 outputCellFrequencies = [0]*cfg.output_pop_size     # List of output cell frequencies
 outputCellNumSpikes = [0]*cfg.output_pop_size       # Helper for frequency
 
+# Keep array of output cells
+outputCells = sim.net.cells[-cfg.output_pop_size:]
+
+# Check if we are using pre-set weights
+if cfg.run_with_input_weights:
+    # Make the directory
+    try:
+        os.stat(cfg.mat_file_dir)
+    except:
+        os.mkdir(cfg.mat_file_dir)
+    print("Reading in data from "+cfg.mat_file_dir + '/' + cfg.preset_weights_filename)
+    input_data = mat4py.loadmat(cfg.mat_file_dir + '/' + cfg.preset_weights_filename)
+    input_data_exc_weights = input_data['exc_out_weights'][-1]
+    input_data_inh_weights = input_data['inh_out_weights'][-1]
+    print("Weights read from {}/{}".format(cfg.mat_file_dir, cfg.preset_weights_filename))
+    # Assumes all to all connections for final layer
+    for cellNum in range(cfg.output_pop_size):
+        cell = outputCells[cellNum]
+        for connNum in range(0, cfg.middle_pop_size):
+            conn = cell.conns[connNum]
+            conn['hObj'].weight[0] = input_data_exc_weights[(cellNum-1)*cfg.middle_pop_size + connNum]
+        for connNum in range(cfg.middle_pop_size, 2*cfg.middle_pop_size):
+            conn = cell.conns[connNum]
+            conn['hObj'].weight[0] = input_data_inh_weights[(cellNum-1)*cfg.middle_pop_size + connNum]
+    print("Saved weights to cells")
+
 if cfg.outputFrequencyTargeting:
     outputCellExcSynapseInput = [0]*cfg.output_pop_size    # sum of synaptic input to each output cell
     outputCellTargetExcSynapseInput = [0]*cfg.output_pop_size # Gradually shifting target synaptic input
-    outputCells = sim.net.cells[-cfg.output_pop_size:]
+
     for cellNum in range(cfg.output_pop_size):
         cell = outputCells[cellNum]
         for conn in cell.conns:
@@ -69,17 +96,17 @@ if cfg.outputFrequencyTargeting:
                 outputCellTargetExcSynapseInput[cellNum] += conn['weight']
     print("Initial Output Neuron Synapse Input: " + str(outputCellExcSynapseInput))
 
-if cfg.randomMovementChange > 0:
-    numberOfRandomMovementsCounter = 0
+# Number of random movements
+numberOfRandomMovementsCounter = 0
 
 # Precompute which connections of each cell are the excitatory connections
-if (cfg.inputSynapseBalance and cfg.balanceExcitatoryOnly) or cfg.outputFrequencyTargeting:
-    excitatoryConnectionsList = [0]*numberOfCells
-    inhibitoryConnectionsList = [0]*numberOfCells
-    for cellNum in range(numberOfCells):
-        cell = sim.net.cells[cellNum]
-        excitatoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.excitatory_connection_name]
-        inhibitoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.inhibitory_connection_name]
+#if (cfg.inputSynapseBalance and cfg.balanceExcitatoryOnly) or cfg.outputFrequencyTargeting:
+excitatoryConnectionsList = [0]*numberOfCells
+inhibitoryConnectionsList = [0]*numberOfCells
+for cellNum in range(numberOfCells):
+    cell = sim.net.cells[cellNum]
+    excitatoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.excitatory_connection_name]
+    inhibitoryConnectionsList[cellNum] = [conn for conn in cell.conns if conn.synMech == cfg.inhibitory_connection_name]
 
 # Define leftover_synaptic_inputs as the amount of synaptic input that is nullified by all
 # max(0, weight) operations for a cell. It is subtracted equally amongst all connections
@@ -311,8 +338,9 @@ if cfg.saveMatFile:
     except:
         os.mkdir(cfg.mat_file_dir)
     # sio.savemat(cfg.mat_filename, \
-    mat4py.savemat(cfg.mat_file_dir + '/' + cfg.mat_filename, \
-        {'epoch_time': float(cfg.epochPeriod),\
+    mat4py.savemat(cfg.mat_file_dir + '/' + cfg.mat_filename, {\
+        'epoch_time': float(cfg.epochPeriod),\
+        'epoch_number': float(cfg.numberOfEpochs),\
         'middle_pop_size': float(cfg.middle_pop_size),\
         'config_exc_weight': float(cfg.middle_exc_weight),\
         'config_inh_weight': float(cfg.middle_inh_weight),\
@@ -326,7 +354,10 @@ if cfg.saveMatFile:
         'output_cell_frequencies': sim.outputFrequencies,\
         'path': forage.getPathList(),\
         'collected_food': forage.getCollectedFood(),\
-        'final_grid': forage.getFinalGrid()})
+        'added_food': forage.getRandomlyPlacedFoodLocations(),\
+        'initial_grid': initial_grid,\
+        'final_grid': forage.getCurrentGrid()})
+    print("Saved data to {}/{}".format(cfg.mat_file_dir, cfg.mat_filename))
 
 if cfg.saveCsvFiles:
     saveMatrixInFile(sim.performances, 'csvfiles/performances.csv', 0)
