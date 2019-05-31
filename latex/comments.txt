@@ -16,4 +16,30 @@
 
 9. p. 2, "STDP reinforcement learning" -> "STDP-based reinforcement learning"
 
-10. 
+10. p. 2, "where much sensory" -> "where many sensory"
+
+11. p. 2, Should be consistent with units, e.g. "mV" and "ms" or "millivolts" and "milliseconds"
+
+12. p. 2, "It is these through these" -> "It is through these"
+
+13. p. 2, Usually potential is indicated by $v$, not $u$? But OK. Also, you don't want to include the actual Izhikevich equations?
+
+14. p. 2, Integrate-and-fire is distinct from Hodgkin-Huxley, see e.g. https://iopscience.iop.org/article/10.1088/0305-4470/34/8/311 or https://www.ncbi.nlm.nih.gov/pubmed/16622699
+
+15. p. 3, "an 7x7" -> "a 7x7"
+
+16. p. 3, Usually good to refer to figures in the text, e.g. "The neural network ... as shown in Figure 2"
+
+17. p. 4, "Pseudo-random" -> "pseudorandom"
+
+18. p. 5, "0.5% variance" -- are you sure you mean %? That's tiny...
+
+19. p. 5, "NetPyNe is very capable..." -- this doesn't read well, I would rephrase or remove this sentence.
+
+20. p. 6, "return back to visited locations just as often" -- wouldn't there be a roughly 1 in 8 chance of revisiting a location on each step? It would be a bit higher than that but shouldn't be 1 in 2, should it...? Here I think it's important to mention that you did run it without learning (Supplemental Figure 9) and the performance was...0.056 or something? In case the reader doesn't buy your logical argument :)
+
+21. p. 6, Figure 4, awesome :D
+
+22. p. 6, I think you need to explain Figure 5 more, since this is basically your key result. Also, I'm not convinced by the capitalization of your figure captions, would kind of prefer sentence case, but up to you :)
+
+23. p. 10, If you can save Fig. 13 properly rather than a screenshot, it'd be better :P
