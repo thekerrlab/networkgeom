@@ -1,0 +1,19 @@
+1. Title -- maybe "Exploration of a Computational Neuronal Network for Solving a Foraging Task"?
+
+2. Abstract -- maybe not important to mention NetPyNE here, also don't need to say "simple" twice
+
+3. Abstract -- maybe say "reinforcement learning and spike-timing...", since STDP is separate from RL.
+
+4. p. 1, "in the 1970's suppressing" -> "in the 1970s suppressed" (either 1970's or 1970s is fine, but you use the latter later)
+
+5. p. 1, "well-studied problem which aims to find a" -> "well-studied problem of finding"
+
+6. p. 1, "best performances are sub-human"...I don't think that's true, see e.g. https://venturebeat.com/2017/12/08/6-areas-where-artificial-neural-networks-outperform-humans/
+
+7. p. 1, "despite their computational feasibility" -- I mean, they tend to be less computationally feasible, which is precisely why they're not used as much...
+
+8. p. 1, "BioSpawn" -> "BioSpaun"
+
+9. p. 2, "STDP reinforcement learning" -> "STDP-based reinforcement learning"
+
+10. 
